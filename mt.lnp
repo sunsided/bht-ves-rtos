@@ -1,4 +1,5 @@
 "STARTUP.obj",
-"MT.obj" 
+"MT.obj",
+"rtos.obj" 
 TO "mt" 
 RAMSIZE(256) 
