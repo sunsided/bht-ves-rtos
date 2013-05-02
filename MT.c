@@ -25,6 +25,7 @@
 
 #include <stdio.h>
 #include <reg51.h>
+#include <datatypes.h>
 
 #define TRUE        1
 #define FIRST       -1
@@ -35,25 +36,25 @@
 													// Für Änderungen siehe ***.m51-File
 
 typedef struct {								// Datentyp für den Thread Control Block
-	unsigned char sp;
-	unsigned char r0;
-	unsigned char r1;
-	unsigned char r2;
-	unsigned char r3;
-	unsigned char r4;
-	unsigned char r5;
-	unsigned char r6;
-	unsigned char r7;
+	uint8_t sp;
+	uint8_t r0;
+	uint8_t r1;
+	uint8_t r2;
+	uint8_t r3;
+	uint8_t r4;
+	uint8_t r5;
+	uint8_t r6;
+	uint8_t r7;
 } TCB;
 
 																	//Threadstacks 
-unsigned char idata Stack[MAXTHREADS][STACKLEN] _at_ 0x30;   
+uint8_t idata Stack[MAXTHREADS][STACKLEN] _at_ 0x30;   
 TCB xdata tcb[MAXTHREADS];									//Thread Cntrl. Bl.
-unsigned char NrThreads = 0;								//Anzahl registr.
+uint8_t NrThreads = 0;								//Anzahl registr.
 																	//Threads
 
 void StartMT(void);                                
-void RegisterThread(unsigned short thread, unsigned char nr);
+void RegisterThread(uint16_t thread, uint8_t nr);
 void tinit(void);
 void V24Init(void);
 
@@ -105,11 +106,11 @@ void RegisterThread(unsigned short thread, unsigned char nr)
 *****************************************************************************/
 timer0() interrupt 1 using 1						// Int Vector at 000BH, Reg Bank 1  
 {
-	static unsigned short intcycle = 0;			// Zähler für die Anz. der Interr.
-	static unsigned char idata * pi;				// Pointer in das interne RAM
-	static unsigned char idata *pd = POSRB0;	// Pointer auf die Registerbank 0
-	static unsigned char CurrentThread = 0;	// Nr des laufenden Threads
-	static unsigned char NewThread = FIRST;	// Nr des naechsten Threads
+	static uint16_t intcycle = 0;			// Zähler für die Anz. der Interr.
+	static uint8_t idata * pi;				// Pointer in das interne RAM
+	static uint8_t idata *pd = POSRB0;	// Pointer auf die Registerbank 0
+	static uint8_t CurrentThread = 0;	// Nr des laufenden Threads
+	static uint8_t NewThread = FIRST;	// Nr des naechsten Threads
 															// Am Anfang ist NewThread auf 
 															// einen erkennbar nicht gültigen
 															// Wert gesetzt (Grund: s. 
