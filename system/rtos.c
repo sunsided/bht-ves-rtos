@@ -85,6 +85,8 @@ void initOS(void)
 *****************************************************************************/
 threadno_t registerThread(thread_function_t* thread, thread_priority_t priority)
 {
+	// TODO: In system call umwandeln (timer interrupt, user interrupt ...)
+	
 	threadno_t threadNumber;
 	
 	assert(2 == sizeof(thread_function_t*));
