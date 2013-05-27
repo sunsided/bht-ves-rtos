@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#include "rtos.h"
+#include "../rtos/rtos.h"
 #include "v24.h"
 
 #define ALWAYS 		  (1)

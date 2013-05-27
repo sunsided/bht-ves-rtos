@@ -25,7 +25,7 @@
 
 #include <stdio.h>
 #include <assert.h>
-#include "system/rtos.h"
+#include "rtos/rtos.h"
 
 // Alle Threads laufen in Registerbank 0
 void thread0(void)
