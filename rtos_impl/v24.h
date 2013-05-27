@@ -4,6 +4,6 @@
 /**
 * Initialisiert die UART-Schnittstelle.
 */
-void V24Init(void);
+void intialize_uart(void);
 
 #endif /* V24_H */

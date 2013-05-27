@@ -1,7 +1,7 @@
 #include "v24.h"
 #include <reg51.h>
 
-void V24Init(void)
+void intialize_uart(void)
 {
 	SCON = 0x52;      		// Serial channel control register
 	// 0x52 == 0101 0010b

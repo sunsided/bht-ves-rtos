@@ -75,7 +75,7 @@ void initOS(void)
 	assert(false == os_running);
 	// TODO: Idle Thread registrieren	
 	
-	V24Init();
+	intialize_uart();
 	initialize_system_timer();
 	os_initialized = true;
 }
