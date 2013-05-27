@@ -92,18 +92,23 @@ void register_threads() {
 	
 	thread = registerThread(thread0, PRIO_NORMAL);
 	ASSERT_THREAD_REGISTERED(thread);
+	printf("thread0 registriert als ID %u.\r\n", (uint16_t)thread); // NOTE: Cast ist ein Fix für endianness
 	
 	thread = registerThread(thread1, PRIO_NORMAL);
 	ASSERT_THREAD_REGISTERED(thread);
+	printf("thread1 registriert als ID %u.\r\n", (uint16_t)thread);
 	
 	thread = registerThread(thread2, PRIO_NORMAL);
 	ASSERT_THREAD_REGISTERED(thread);
+	printf("thread2 registriert als ID %u.\r\n", (uint16_t)thread);
 	
 	thread = registerThread(thread3, PRIO_NORMAL);
 	ASSERT_THREAD_REGISTERED(thread);
+	printf("thread3 registriert als ID %u.\r\n", (uint16_t)thread);
 	
 	thread = registerThread(thread4, PRIO_NORMAL);
 	ASSERT_THREAD_REGISTERED(thread);
+	printf("thread4 registriert als ID %u.\r\n", (uint16_t)thread);
 }
 
 void main(void) {
