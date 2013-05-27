@@ -12,20 +12,28 @@
 void initialize_system_timer(void);
 
 /**
-* Deaktiviert den Systemtimer.
+* Startet den Systemtimer.
+*
+* Startet den Systemtimer, der für das Scheduling und die
+* System-Calls verwendet wird.
+*/
+void start_system_timer(void);
+
+/**
+* Deaktiviert den Systemtimer-Interrupt.
 *
 * Erlaubt die atomare Ausführung von Anweisungen,
 * bis der Timer erneut aktiviert wird.
 */
-#define disable_system_timer() { ET0 = 0; }
+#define suppress_system_timer_int() { ET0 = 0; }
 
 /**
-* Aktiviert den Systemtimer.
+* Aktiviert den Systemtimer-Interrupt.
 *
 * Aktiviert den Systemtimer und beendet damit einen
 * atomaren Block-.
 */
-#define enable_system_timer() { ET0 = 1; }
+#define allow_system_timer_int() { ET0 = 1; }
 
 /**
 * Erzwingt einen Overflow des Systemtimers.

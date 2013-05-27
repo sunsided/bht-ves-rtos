@@ -61,7 +61,7 @@ void startOS(void)
 	assert(true  == os_initialized);
 	assert(false == os_running);
 
-	initialize_system_timer(); // TODO: in init verschieben, idle-Thread soll laufen
+	start_system_timer();
 	
 	os_running = true;
 	while (ALWAYS);
@@ -76,6 +76,7 @@ void initOS(void)
 	// TODO: Idle Thread registrieren	
 	
 	V24Init();
+	initialize_system_timer();
 	os_initialized = true;
 }
 
