@@ -9,6 +9,6 @@
 /**
 * Länge eines Ticks in ms.
 */
-#define TICK_DURATION_MS (10)
+#define TICK_DURATION_MS (1000)
 
 #endif /* SYSTEM_H */

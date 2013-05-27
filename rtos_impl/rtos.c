@@ -14,42 +14,16 @@
 #include "timer.h"
 
 #define ALWAYS 		  (1)
-#define FIRST       (-1)
-#define MAXTHREADS  (5)						// maximale Anz. der verwaltbaren Threads
 #define POSRB0      (0x00)					// Position von Reg.Bank 0 im int. RAM
 #define SLICE       (4*100)					// Timeslice
-#define STACKLEN    (0x20)					// maximale Stacktiefe eines Threads
-													// Für Änderungen siehe ***.m51-File
-
-/**
-* Bezieht das MSB eines Wortes
-*/
-#define HIGH_BYTE_FROM_PTR(ptr) (((uint16_t)(ptr) & 0xFF00U) >> 8)
-
-/**
-* Bezieht das LSB eines Wortes
-*/
-#define LOW_BYTE_FROM_PTR(ptr)   ((uint16_t)(ptr) & 0x00FFU)
-
-typedef struct {								// Datentyp für den Thread Control Block
-	uint8_t sp;
-	uint8_t r0;
-	uint8_t r1;
-	uint8_t r2;
-	uint8_t r3;
-	uint8_t r4;
-	uint8_t r5;
-	uint8_t r6;
-	uint8_t r7;
-} TCB;
 
 																	//Threadstacks 
-uint8_t idata Stack[MAXTHREADS][STACKLEN] _at_ 0x30;   
-TCB xdata tcb[MAXTHREADS];									//Thread Cntrl. Bl.
+uint8_t idata Stack[MAX_THREADS][MAX_THREAD_STACKLENGTH] _at_ 0x30;   
+TCB xdata tcb[MAX_THREADS];									//Thread Cntrl. Bl.
 uint8_t NrThreads = 0;								//Anzahl registr.
 
-bool os_initialized = false;
-bool os_running = false;
+static bool os_initialized = false;
+static bool os_running = false;
 
 /**
 * Startet das Betriebssystem.
@@ -79,35 +53,6 @@ void initOS(void)
 	initialize_system_timer();
 	os_initialized = true;
 }
-
-/*****************************************************************************
-*              Eintragen eines Threads in die Verwaltungsstrukturen          *
-*****************************************************************************/
-threadno_t registerThread(thread_function_t* thread, thread_priority_t priority)
-{
-	// TODO: In system call umwandeln (timer interrupt, user interrupt ...)
-	
-	threadno_t threadNumber;
-	
-	assert(2 == sizeof(thread_function_t*));
-	
-	if (NrThreads == MAXTHREADS)
-		return THREAD_REGISTER_ERROR;
-	
-	threadNumber = (threadno_t)NrThreads++; // NOTE: Logik nimmt an, dass niemals Threads entfernt werden.
-	
-														// SP erstmals auf die nachfolgend
-														// abgelegte Rücksprungadresse
-														// + 5 byte für 5 PUSHes
-	tcb[threadNumber].sp  = (unsigned char)(&Stack[threadNumber][0] + 6);          
-
-	Stack[threadNumber][0] = LOW_BYTE_FROM_PTR(thread);				// Startadresse des registrierten
-	Stack[threadNumber][1] = HIGH_BYTE_FROM_PTR(thread);    	// Threads als Rücksprungadresse
-	
-	return threadNumber;
-}
-
-
 
 /*****************************************************************************
 *                    Timer 0 interrupt service function                      *
