@@ -11,6 +11,7 @@
 
 #include "../rtos/rtos.h"
 #include "v24.h"
+#include "timer.h"
 
 #define ALWAYS 		  (1)
 #define FIRST       (-1)
@@ -29,8 +30,6 @@
 * Bezieht das LSB eines Wortes
 */
 #define LOW_BYTE_FROM_PTR(ptr)   ((uint16_t)(ptr) & 0x00FFU)
-
-void tinit(void);
 
 typedef struct {								// Datentyp für den Thread Control Block
 	uint8_t sp;
@@ -62,7 +61,7 @@ void startOS(void)
 	assert(true  == os_initialized);
 	assert(false == os_running);
 
-	tinit(); // TODO: in init verschieben, idle-Thread soll laufen
+	initialize_system_timer(); // TODO: in init verschieben, idle-Thread soll laufen
 	
 	os_running = true;
 	while (ALWAYS);
@@ -175,18 +174,4 @@ timer0() interrupt 1 using 1						// Int Vector at 000BH, Reg Bank 1
 	}    
 }
 
-
-
-/****************************************************************************/
-/*                         setup timer 0 interrupt                          */
-/****************************************************************************/
-void tinit(void)  
-{
-	TH0 = -250;												// set timer period            
-	TL0 = -250;												// set reload value
-	TMOD = TMOD | 0x02;									// select mode 2               
-	TR0 = 1;													// start timer 0               
-	ET0 = 1;													// enable timer 0 interrupt    
-	EA  = 1;													// global interrupt enable     
-}
 
