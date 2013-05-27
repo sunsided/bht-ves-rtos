@@ -78,16 +78,37 @@ void thread4(void)
 	}
 }
 
+/**
+* Sichert über eine Assertion, dass der Thread registriert wurde.
+*/
+#define ASSERT_THREAD_REGISTERED(threadno) \
+	assert(THREAD_REGISTER_ERROR != (threadno))
+
+/**
+* Registriert die user threads.
+*/
+void register_threads() {
+	threadno_t thread;
+	
+	thread = registerThread(thread0, PRIO_NORMAL);
+	ASSERT_THREAD_REGISTERED(thread);
+	
+	thread = registerThread(thread1, PRIO_NORMAL);
+	ASSERT_THREAD_REGISTERED(thread);
+	
+	thread = registerThread(thread2, PRIO_NORMAL);
+	ASSERT_THREAD_REGISTERED(thread);
+	
+	thread = registerThread(thread3, PRIO_NORMAL);
+	ASSERT_THREAD_REGISTERED(thread);
+	
+	thread = registerThread(thread4, PRIO_NORMAL);
+	ASSERT_THREAD_REGISTERED(thread);
+}
+
 void main(void) {
 	initOS();
-	
-	// NOTE: assert() wird möglicherweise wegoptimiert
-	assert(THREAD_REGISTER_ERROR != registerThread(thread0, PRIO_NORMAL)); // so entwerfen, dass ID oder Fehler zurückgeben wird
-	assert(THREAD_REGISTER_ERROR != registerThread(thread1, PRIO_NORMAL));
-	assert(THREAD_REGISTER_ERROR != registerThread(thread2, PRIO_NORMAL));
-	assert(THREAD_REGISTER_ERROR != registerThread(thread3, PRIO_NORMAL));
-	assert(THREAD_REGISTER_ERROR != registerThread(thread4, PRIO_NORMAL));
-	
+	register_threads();
 	startOS();							// Starten des Multithreading
 											// Diese Funktion terminiert nie!
 }
