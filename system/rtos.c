@@ -11,12 +11,12 @@
 #include "rtos.h"
 #include "v24.h"
 
-#define TRUE        1
-#define FIRST       -1
-#define MAXTHREADS  5						// maximale Anz. der verwaltbaren Threads
-#define POSRB0      0x00					// Position von Reg.Bank 0 im int. RAM
-#define SLICE       4*100					// Timeslice
-#define STACKLEN    0x20					// maximale Stacktiefe eines Threads
+#define ALWAYS 		  (1)
+#define FIRST       (-1)
+#define MAXTHREADS  (5)						// maximale Anz. der verwaltbaren Threads
+#define POSRB0      (0x00)					// Position von Reg.Bank 0 im int. RAM
+#define SLICE       (4*100)					// Timeslice
+#define STACKLEN    (0x20)					// maximale Stacktiefe eines Threads
 													// Für Änderungen siehe ***.m51-File
 
 void tinit(void);
@@ -54,7 +54,7 @@ void startOS(void)
 	tinit(); // TODO: in init verschieben, idle-Thread soll laufen
 	
 	os_running = true;
-	while (TRUE);
+	while (ALWAYS);
 }
 
 /**
