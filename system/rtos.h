@@ -3,7 +3,7 @@
 
 #include "datatypes.h"
 
-void StartMT(void);                                
+void StartMT(void);
 void RegisterThread(uint16_t thread, uint8_t nr);
 void tinit(void);
 
