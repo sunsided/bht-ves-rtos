@@ -24,6 +24,7 @@
 *****************************************************************************/
 
 #include <stdio.h>
+#include <assert.h>
 #include "system/rtos.h"
 
 // Alle Threads laufen in Registerbank 0
@@ -78,6 +79,10 @@ void thread4(void)
 }
 
 void main(void) {
+	threadFunction_t* ptr1 = thread1;
+	threadFunction_t* ptr2 = &thread1;
+	assert(ptr1 == ptr2);
+	
 	initOS();
 	
 	RegisterThread(thread0, 0); // so entwerfen, dass ID oder Fehler zurückgeben wird

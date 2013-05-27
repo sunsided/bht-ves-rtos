@@ -6,6 +6,7 @@
  
 
 #include <reg51.h>
+#include <stdlib.h>
 #include <assert.h>
 
 #include "rtos.h"
@@ -18,6 +19,16 @@
 #define SLICE       (4*100)					// Timeslice
 #define STACKLEN    (0x20)					// maximale Stacktiefe eines Threads
 													// Für Änderungen siehe ***.m51-File
+
+/**
+* Bezieht das MSB eines Wortes
+*/
+#define HIGH_BYTE_FROM_PTR(ptr) (((uint16_t)(ptr) & 0xFF00U) >> 8)
+
+/**
+* Bezieht das LSB eines Wortes
+*/
+#define LOW_BYTE_FROM_PTR(ptr)   ((uint16_t)(ptr) & 0x00FFU)
 
 void tinit(void);
 
@@ -69,14 +80,12 @@ void initOS(void)
 	os_initialized = true;
 }
 
-
-
 /*****************************************************************************
 *              Eintragen eines Threads in die Verwaltungsstrukturen          *
 *****************************************************************************/
-void RegisterThread(threadFunction thread, unsigned char nr)
+void RegisterThread(threadFunction_t* thread, unsigned char nr)
 {
-	uint16_t address;
+	assert(2 == sizeof(threadFunction_t*));
 	
 	if (NrThreads == MAXTHREADS)
 		return;
@@ -87,9 +96,8 @@ void RegisterThread(threadFunction thread, unsigned char nr)
 														// + 5 byte für 5 PUSHes
 	tcb[nr].sp  = (unsigned char)(&Stack[nr][0] + 6);          
 
-	address = (uint16_t)thread;
-	Stack[nr][0] = (address & 0x00ffU);				// Startadresse des registrierten
-	Stack[nr][1] = ((address & 0xff00U) >> 8);	// Threads als Rücksprungadresse
+	Stack[nr][0] = LOW_BYTE_FROM_PTR(thread);				// Startadresse des registrierten
+	Stack[nr][1] = HIGH_BYTE_FROM_PTR(thread);    	// Threads als Rücksprungadresse
 }
 
 

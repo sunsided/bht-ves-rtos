@@ -380,6 +380,16 @@
               <FileType>5</FileType>
               <FilePath>.\system\rtos.h</FilePath>
             </File>
+            <File>
+              <FileName>v24.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\system\v24.h</FilePath>
+            </File>
+            <File>
+              <FileName>v24.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\system\v24.c</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>
