@@ -78,7 +78,7 @@ void thread4(void)
 }
 
 void main(void) {
-	V24Init();
+	initOS();
 	
 	RegisterThread(thread0, 0); // so entwerfen, dass ID oder Fehler zurückgeben wird
 	RegisterThread(thread1, 1);
@@ -86,6 +86,6 @@ void main(void) {
 	RegisterThread(thread3, 3);
 	RegisterThread(thread4, 4);
 	
-	StartMT();							// Starten des Multithreading
+	startOS();							// Starten des Multithreading
 											// Diese Funktion terminiert nie!
 }

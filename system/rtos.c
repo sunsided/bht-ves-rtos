@@ -6,7 +6,10 @@
  
 
 #include <reg51.h>
+#include <assert.h>
+
 #include "rtos.h"
+#include "v24.h"
 
 #define TRUE        1
 #define FIRST       -1
@@ -15,6 +18,8 @@
 #define SLICE       4*100					// Timeslice
 #define STACKLEN    0x20					// maximale Stacktiefe eines Threads
 													// Für Änderungen siehe ***.m51-File
+
+void tinit(void);
 
 typedef struct {								// Datentyp für den Thread Control Block
 	uint8_t sp;
@@ -32,15 +37,36 @@ typedef struct {								// Datentyp für den Thread Control Block
 uint8_t idata Stack[MAXTHREADS][STACKLEN] _at_ 0x30;   
 TCB xdata tcb[MAXTHREADS];									//Thread Cntrl. Bl.
 uint8_t NrThreads = 0;								//Anzahl registr.
-	
-/*****************************************************************************
-*                  Starten des MT-Betriebs (wird nie beendet!)               *
-*****************************************************************************/
-void StartMT(void)
-{
-	tinit();
 
+bool os_initialized = false;
+bool os_running = false;
+
+/**
+* Startet das Betriebssystem.
+*
+* @returns Diese Methode wird niemals verlassen.
+*/
+void startOS(void)
+{
+	assert(true  == os_initialized);
+	assert(false == os_running);
+
+	tinit(); // TODO: in init verschieben, idle-Thread soll laufen
+	
+	os_running = true;
 	while (TRUE);
+}
+
+/**
+* Initialisiert das Betriebssystem.
+*/
+void initOS(void)
+{
+	assert(false == os_running);
+	// TODO: Idle Thread registrieren	
+	
+	V24Init();
+	os_initialized = true;
 }
 
 

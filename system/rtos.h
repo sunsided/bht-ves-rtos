@@ -2,11 +2,33 @@
 #define RTOS_H
 
 #include "datatypes.h"
-#include "v24.h"
 
-void StartMT(void);
+/**
+* Initialisiert das Betriebssystem.
+*
+* Diese Methode muss vor startOS() aufgerufen werden.
+*
+* @see startOS()
+*/
+void initOS(void);
+
+/**
+* Startet das Betriebssystem.
+*
+* Setzt einen vorherigen Aufruf von initOS() voraus.
+*
+* @returns Diese Methode wird niemals verlassen.
+* @see initOS()
+*/
+void startOS(void);
+
+/**
+* Registriert einen Thread.
+*
+* @param thread Funktionszeiger auf den Thread
+* @param nr 		Nummer des Threads
+*/
 void RegisterThread(uint16_t thread, uint8_t nr);
-void tinit(void);
 
 #else /* RTOS_H */
 #error rtos.h mehrfach inkludiert
