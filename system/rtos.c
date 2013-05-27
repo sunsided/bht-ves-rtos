@@ -83,7 +83,7 @@ void initOS(void)
 /*****************************************************************************
 *              Eintragen eines Threads in die Verwaltungsstrukturen          *
 *****************************************************************************/
-threadno_t registerThread(threadFunction_t* thread)
+threadno_t registerThread(threadFunction_t* thread, thread_priority_t priority)
 {
 	threadno_t threadNumber;
 	

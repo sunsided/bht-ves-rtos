@@ -81,11 +81,12 @@ void thread4(void)
 void main(void) {
 	initOS();
 	
-	assert(0 == registerThread(thread0)); // so entwerfen, dass ID oder Fehler zurückgeben wird
-	assert(1 == registerThread(thread1));
-	assert(2 == registerThread(thread2));
-	assert(3 == registerThread(thread3));
-	assert(4 == registerThread(thread4));
+	// NOTE: assert() wird möglicherweise wegoptimiert
+	assert(THREAD_REGISTER_ERROR != registerThread(thread0, PRIO_NORMAL)); // so entwerfen, dass ID oder Fehler zurückgeben wird
+	assert(THREAD_REGISTER_ERROR != registerThread(thread1, PRIO_NORMAL));
+	assert(THREAD_REGISTER_ERROR != registerThread(thread2, PRIO_NORMAL));
+	assert(THREAD_REGISTER_ERROR != registerThread(thread3, PRIO_NORMAL));
+	assert(THREAD_REGISTER_ERROR != registerThread(thread4, PRIO_NORMAL));
 	
 	startOS();							// Starten des Multithreading
 											// Diese Funktion terminiert nie!
