@@ -2,6 +2,7 @@
 #define RTOS_H
 
 #include "datatypes.h"
+#include "v24.h"
 
 void StartMT(void);
 void RegisterThread(uint16_t thread, uint8_t nr);
