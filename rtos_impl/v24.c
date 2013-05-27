@@ -13,7 +13,7 @@ void intialize_uart(void)
 	// TI				= 1			transmitter interrupt enabled
 	// RI		    = 0			receiver interrupt disabled
 	
-	TMOD = TMOD | 0x20;		// Timer mode register
+	TMOD = (TMOD & 0x0F) | (0x02 << 4);		// Timer mode register
 	// 0x20 = 0010 0000b
 	// Gate			= 0			Gating control (timer enabled, wenn TR1 gesetzt)
 	// C/T			= 0			Counter/timer select (0 = timer)
