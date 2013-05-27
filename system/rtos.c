@@ -74,8 +74,10 @@ void initOS(void)
 /*****************************************************************************
 *              Eintragen eines Threads in die Verwaltungsstrukturen          *
 *****************************************************************************/
-void RegisterThread(unsigned short thread, unsigned char nr)
+void RegisterThread(threadFunction thread, unsigned char nr)
 {
+	uint16_t address;
+	
 	if (NrThreads == MAXTHREADS)
 		return;
 
@@ -85,8 +87,9 @@ void RegisterThread(unsigned short thread, unsigned char nr)
 														// + 5 byte für 5 PUSHes
 	tcb[nr].sp  = (unsigned char)(&Stack[nr][0] + 6);          
 
-	Stack[nr][0] = (thread & 0x00ffU);				// Startadresse des registrierten
-	Stack[nr][1] = ((thread & 0xff00U) >> 8);	// Threads als Rücksprungadresse
+	address = (uint16_t)thread;
+	Stack[nr][0] = (address & 0x00ffU);				// Startadresse des registrierten
+	Stack[nr][1] = ((address & 0xff00U) >> 8);	// Threads als Rücksprungadresse
 }
 
 

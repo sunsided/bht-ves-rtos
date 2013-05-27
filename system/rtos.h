@@ -23,12 +23,17 @@ void initOS(void);
 void startOS(void);
 
 /**
+* Zeiger auf eine Threadfunktion.
+*/ 
+typedef void (*threadFunction)(void);
+
+/**
 * Registriert einen Thread.
 *
 * @param thread Funktionszeiger auf den Thread
 * @param nr 		Nummer des Threads
 */
-void RegisterThread(uint16_t thread, uint8_t nr);
+void RegisterThread(threadFunction thread, uint8_t nr);
 
 #else /* RTOS_H */
 #error rtos.h mehrfach inkludiert
