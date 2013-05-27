@@ -79,17 +79,13 @@ void thread4(void)
 }
 
 void main(void) {
-	threadFunction_t* ptr1 = thread1;
-	threadFunction_t* ptr2 = &thread1;
-	assert(ptr1 == ptr2);
-	
 	initOS();
 	
-	RegisterThread(thread0, 0); // so entwerfen, dass ID oder Fehler zurückgeben wird
-	RegisterThread(thread1, 1);
-	RegisterThread(thread2, 2);
-	RegisterThread(thread3, 3);
-	RegisterThread(thread4, 4);
+	assert(0 == registerThread(thread0)); // so entwerfen, dass ID oder Fehler zurückgeben wird
+	assert(1 == registerThread(thread1));
+	assert(2 == registerThread(thread2));
+	assert(3 == registerThread(thread3));
+	assert(4 == registerThread(thread4));
 	
 	startOS();							// Starten des Multithreading
 											// Diese Funktion terminiert nie!

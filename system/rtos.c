@@ -83,21 +83,26 @@ void initOS(void)
 /*****************************************************************************
 *              Eintragen eines Threads in die Verwaltungsstrukturen          *
 *****************************************************************************/
-void RegisterThread(threadFunction_t* thread, unsigned char nr)
+threadno_t registerThread(threadFunction_t* thread)
 {
+	threadno_t threadNumber;
+	
 	assert(2 == sizeof(threadFunction_t*));
 	
 	if (NrThreads == MAXTHREADS)
-		return;
-
-	NrThreads++;
+		return THREAD_REGISTER_ERROR;
+	
+	threadNumber = (threadno_t)NrThreads++; // NOTE: Logik nimmt an, dass niemals Threads entfernt werden.
+	
 														// SP erstmals auf die nachfolgend
 														// abgelegte Rücksprungadresse
 														// + 5 byte für 5 PUSHes
-	tcb[nr].sp  = (unsigned char)(&Stack[nr][0] + 6);          
+	tcb[threadNumber].sp  = (unsigned char)(&Stack[threadNumber][0] + 6);          
 
-	Stack[nr][0] = LOW_BYTE_FROM_PTR(thread);				// Startadresse des registrierten
-	Stack[nr][1] = HIGH_BYTE_FROM_PTR(thread);    	// Threads als Rücksprungadresse
+	Stack[threadNumber][0] = LOW_BYTE_FROM_PTR(thread);				// Startadresse des registrierten
+	Stack[threadNumber][1] = HIGH_BYTE_FROM_PTR(thread);    	// Threads als Rücksprungadresse
+	
+	return threadNumber;
 }
 
 

@@ -28,12 +28,23 @@ void startOS(void);
 typedef void (threadFunction_t)(void);
 
 /**
+* Thread-Nummer.
+*/
+typedef uint8_t threadno_t;
+
+/**
+* Definiert einen Fehlerfall bei der Threaderzeugung.
+*/
+#define THREAD_REGISTER_ERROR ((threadno_t)-1)
+
+/**
 * Registriert einen Thread.
 *
 * @param thread Funktionszeiger auf den Thread
 * @param nr 		Nummer des Threads
+* @returns 		  Die Nummer des Threads oder THREAD_REGISTER_ERROR im Fehlerfall.
 */
-void RegisterThread(threadFunction_t* thread, uint8_t nr);
+threadno_t registerThread(threadFunction_t* thread);
 
 #else /* RTOS_H */
 #error rtos.h mehrfach inkludiert
