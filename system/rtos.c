@@ -83,11 +83,11 @@ void initOS(void)
 /*****************************************************************************
 *              Eintragen eines Threads in die Verwaltungsstrukturen          *
 *****************************************************************************/
-threadno_t registerThread(threadFunction_t* thread, thread_priority_t priority)
+threadno_t registerThread(thread_function_t* thread, thread_priority_t priority)
 {
 	threadno_t threadNumber;
 	
-	assert(2 == sizeof(threadFunction_t*));
+	assert(2 == sizeof(thread_function_t*));
 	
 	if (NrThreads == MAXTHREADS)
 		return THREAD_REGISTER_ERROR;

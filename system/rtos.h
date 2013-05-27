@@ -25,7 +25,7 @@ void startOS(void);
 /**
 * Zeiger auf eine Threadfunktion.
 */ 
-typedef void (threadFunction_t)(void);
+typedef void (thread_function_t)(void);
 
 /**
 * Thread-Nummer.
@@ -55,7 +55,7 @@ typedef enum {
 * @param priority Priorität des Threads
 * @returns 		  	Die Nummer des Threads oder THREAD_REGISTER_ERROR im Fehlerfall.
 */
-threadno_t registerThread(threadFunction_t* thread, thread_priority_t priority);
+threadno_t registerThread(thread_function_t* thread, thread_priority_t priority);
 
 #else /* RTOS_H */
 #error rtos.h mehrfach inkludiert
