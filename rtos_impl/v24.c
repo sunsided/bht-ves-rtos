@@ -13,14 +13,15 @@ void intialize_uart(void)
 	// TI				= 1			transmitter interrupt enabled
 	// RI		    = 0			receiver interrupt disabled
 	
-	TMOD = (TMOD & 0x0F) | (0x02 << 4);		// Timer mode register
+	TMOD &= ~0xF0; 			// Bits für timer 1 clearen
+	TMOD |= (0x02 << 4);		// Timer mode register
 	// 0x20 = 0010 0000b
 	// Gate			= 0			Gating control (timer enabled, wenn TR1 gesetzt)
 	// C/T			= 0			Counter/timer select (0 = timer)
 	// M1, M0   = 1,x		8-bit auto-reload timer/counter
   //									value in TH1									
 	
-	TCON = 0x69;      		// Timer control register
+	TCON = 0x69;      	// Timer control register
 	// 0x69 == 0110 1001b
 	// TF1 		  = 0			Timer 1 overflow flag (reset)
 	// TR1      = 1			Timer 1 run control bit (enable)
