@@ -62,7 +62,6 @@ void initOS(void)
 *****************************************************************************/
 timer0() interrupt 1 using 1						// Int Vector at 000BH, Reg Bank 1  
 {
-	static uint16_t intcycle = 0;			// Zähler für die Anz. der Interr.
 	static uint8_t idata * pi;				// Pointer in das interne RAM
 	static uint8_t idata *pd = POSRB0;	// Pointer auf die Registerbank 0
 	static uint8_t CurrentThread = 0;	// Nr des laufenden Threads
@@ -75,10 +74,9 @@ timer0() interrupt 1 using 1						// Int Vector at 000BH, Reg Bank 1
 	reload_system_timer();
 	
 	if (NrThreads > 0) {								// Sind Threads zu verwalten?
-		if (++intcycle == SLICE)  {
-			intcycle = 0;
-			NewThread = (CurrentThread + 1)%NrThreads;	// Threadumschaltung
-		}  
+
+		NewThread = (CurrentThread + 1)%NrThreads;	// Threadumschaltung
+
 		pi = (unsigned char idata *)SP;			// Kopie des Stackpointers
 
 		if (NewThread != CurrentThread) {		// Nur bei Threadwechsel müssen
