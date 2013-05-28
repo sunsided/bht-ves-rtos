@@ -20,6 +20,11 @@ void initialize_system_timer(void);
 void start_system_timer(void);
 
 /**
+* Lädt den Systemtimer neu.
+*/
+void reload_system_timer(void);
+
+/**
 * Deaktiviert den Systemtimer-Interrupt.
 *
 * Erlaubt die atomare Ausführung von Anweisungen,
