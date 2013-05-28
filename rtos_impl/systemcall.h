@@ -1,7 +1,7 @@
 #ifndef IMPL__SYSTEMCALL_H
 #define IMPL__SYSTEMCALL_H
 
-#include "../rtos/threads.h"
+#include "syscall/syscall_register_thread.h"
 
 /**
 * System call type.
@@ -12,27 +12,6 @@ typedef enum {
 	NO_SYSTEM_CALL = 0,				//< Kein system call (default-Wert)
 	REGISTER_THREAD = 1,			//< Thread-Registrierung wird angefordert
 } system_call_type;
-
-/**
-* register_thread - Registrierung eines Threads
-*/
-typedef struct {
-	/**
-	* Die Priorität des Threads
-	*/
-	thread_priority_t priority;
-	
-	/**
-	* Zeiger auf die Thread-Funktion.
-	*/
-	thread_function_t *function;
-	
-	/**
-	* Name des Threads
-	*/
-	unsigned char name[MAX_THREAD_NAME_LENGTH+1];
-	
-} syscall_register_thread_t;
 
 /**
 * Übergabestruktur für system call.
@@ -61,9 +40,14 @@ typedef struct {
 	system_call_type type;
 	
 	/**
-	* ID des zuletzt registrierten Threads
+	* System call-Ergebnisse
 	*/
-	threadno_t last_registered_thread;
+	union {
+		/**
+		* register_thread - Registrierung eines Threads
+		*/
+		syscall_register_thread_result_t register_thread;
+	} result_data;
 	
 } system_call_result_t;
 

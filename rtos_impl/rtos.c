@@ -99,12 +99,12 @@ void init_os(void)
 static void exec_syscall_register_thread(const system_call_t *syscall) using 1
 {
 	static syscall_register_thread_t *sc;
-	static system_call_result_t *sr;
+	static syscall_register_thread_result_t *sr;
 	static threadno_t threadNumber;
 	
 	// system call und Ergebnis-Instanz beziehen
 	sc = (syscall_register_thread_t *)&syscall->call_data;
-	sr = get_system_call_result();
+	sr = &get_system_call_result()->result_data.register_thread;
 	
 	printf("* registering thread \"%s\" with priority %d ...\r\n", sc->name, (uint16_t)sc->priority);
 	

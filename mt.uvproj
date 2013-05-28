@@ -405,6 +405,16 @@
               <FileType>5</FileType>
               <FilePath>.\rtos_impl\threads.h</FilePath>
             </File>
+            <File>
+              <FileName>systemcall.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\rtos_impl\systemcall.c</FilePath>
+            </File>
+            <File>
+              <FileName>systemcall.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\rtos_impl\systemcall.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

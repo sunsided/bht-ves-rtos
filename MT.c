@@ -37,7 +37,6 @@ void thread0(void)
 	}
 }
 
-
 void thread1(void)
 {
 	static int i = 0;
@@ -48,7 +47,6 @@ void thread1(void)
 	}
 }
 
-
 void thread2(void)
 {
 	static int i = 0;
@@ -58,20 +56,9 @@ void thread2(void)
 	}
 }
 
-
 void thread3(void)
 {
 	static int i = 0;
-	
-	while(1) {
-		i++;
-	}
-}
-
-
-void thread4(void)
-{
-	int i = 0;
 	
 	while(1) {
 		i++;
