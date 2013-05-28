@@ -62,9 +62,6 @@ void initOS(void)
 *****************************************************************************/
 timer0() interrupt 1 using 1						// Int Vector at 000BH, Reg Bank 1  
 {
-	reload_system_timer();
-	
-	/*
 	static uint16_t intcycle = 0;			// Zähler für die Anz. der Interr.
 	static uint8_t idata * pi;				// Pointer in das interne RAM
 	static uint8_t idata *pd = POSRB0;	// Pointer auf die Registerbank 0
@@ -75,6 +72,8 @@ timer0() interrupt 1 using 1						// Int Vector at 000BH, Reg Bank 1
 															// Wert gesetzt (Grund: s. 
 															// "if (NewThread == FIRST)").
 
+	reload_system_timer();
+	
 	if (NrThreads > 0) {								// Sind Threads zu verwalten?
 		if (++intcycle == SLICE)  {
 			intcycle = 0;
@@ -121,12 +120,6 @@ timer0() interrupt 1 using 1						// Int Vector at 000BH, Reg Bank 1
 			CurrentThread = NewThread;					// Ab jetzt ist der neue Thread
 		}                                         // der aktuelle!
 	}    
-	*/
-	
-	//TH0 = 0xBE;
-	//TL0 = 0xEB;
-	
-	// NOTE: An dieser Stelle muss der Timer erneut gesetzt werden, da er kein auto-reload beherrscht
 }
 
 

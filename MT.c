@@ -113,7 +113,7 @@ void register_threads() {
 
 void main(void) {
 	initOS();
-//	register_threads();
+	register_threads();
 	startOS();							// Starten des Multithreading
 											// Diese Funktion terminiert nie!
 }
