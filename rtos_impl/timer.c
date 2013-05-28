@@ -1,5 +1,6 @@
 #include <reg51.h>
 #include "../rtos/datatypes.h"
+#include "../rtos/rtos.h"
 #include "timer.h"
 #include "system.h"
 
@@ -59,4 +60,38 @@ void reload_system_timer(void)
 void start_system_timer(void) 
 {
 	TR0 = 1;													// start timer 0
+}
+
+/**
+* Deaktiviert den Systemtimer-Interrupt.
+*
+* Erlaubt die atomare Ausführung von Anweisungen,
+* bis der Timer erneut aktiviert wird.
+*/
+void suppress_system_timer_int() 
+{ 
+	ET0 = 0; 
+}
+
+/**
+* Aktiviert den Systemtimer-Interrupt.
+*
+* Aktiviert den Systemtimer und beendet damit einen
+* atomaren Block.
+*/
+void allow_system_timer_int() 
+{ 
+	ET0 = 1; 
+}
+
+/**
+* Erzwingt einen Overflow des Systemtimers.
+*
+* Setzt das Overflow-Flag des Systemtimers manuell,
+* wodurch nach Aktivieren des Timers der Interrupt-Handler
+* betreten wird.
+*/
+void trigger_system_timer_overflow() 
+{ 
+	TF0 = 1;
 }

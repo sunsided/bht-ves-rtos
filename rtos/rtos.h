@@ -11,7 +11,7 @@
 *
 * @see startOS()
 */
-void initOS(void);
+void init_os(void);
 
 /**
 * Startet das Betriebssystem.
@@ -21,7 +21,7 @@ void initOS(void);
 * @returns Diese Methode wird niemals verlassen.
 * @see initOS()
 */
-void startOS(void);
+void start_os(void);
 
 #else /* RTOS_H */
 #error rtos.h mehrfach inkludiert

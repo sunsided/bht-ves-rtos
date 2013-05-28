@@ -1,9 +1,9 @@
-#ifndef V24_H
-#define V24_H
+#ifndef IMPL__V24_H
+#define IMPL__V24_H
 
 /**
 * Initialisiert die UART-Schnittstelle.
 */
 void intialize_uart(void);
 
-#endif /* V24_H */
+#endif /* IMPL__V24_H */

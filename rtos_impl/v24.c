@@ -1,5 +1,5 @@
-#include "v24.h"
 #include <reg51.h>
+#include "v24.h"
 
 void intialize_uart(void)
 {

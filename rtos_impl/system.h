@@ -1,5 +1,5 @@
-#ifndef SYSTEM_H
-#define SYSTEM_H
+#ifndef IMPL__SYSTEM_H
+#define IMPL__SYSTEM_H
 
 /**
 * CPU-Frequenz in Hz.
@@ -11,4 +11,4 @@
 */
 #define TICK_DURATION_MS (10U)
 
-#endif /* SYSTEM_H */
+#endif /* IMPL__SYSTEM_H */

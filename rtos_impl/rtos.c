@@ -6,12 +6,16 @@
  
 
 #include <reg51.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
 
-#include "../rtos/rtos.h"
 #include "v24.h"
 #include "timer.h"
+#include "systemcall.h"
+#include "threads.h"
+
+#include "../rtos/rtos.h"
 
 #define ALWAYS 		  (1)
 #define POSRB0      (0x00)					// Position von Reg.Bank 0 im int. RAM
@@ -21,16 +25,33 @@
 uint8_t idata Stack[MAX_THREADS][MAX_THREAD_STACKLENGTH] _at_ 0x30;   
 TCB xdata tcb[MAX_THREADS];									//Thread Cntrl. Bl.
 uint8_t NrThreads = 0;								//Anzahl registr.
+int8_t CurrentThread = 0;	// Nr des laufenden Threads
 
+/**
+* Gibt an, ob das OS initialisiert wurde
+*/
 static bool os_initialized = false;
+
+/**
+* Gibt an, ob das OS läuft wurde
+*/
 static bool os_running = false;
+
+/**
+* Der idle thread
+*/
+static void idle_thread(void)
+{
+	while(1) {
+	}
+}
 
 /**
 * Startet das Betriebssystem.
 *
 * @returns Diese Methode wird niemals verlassen.
 */
-void startOS(void)
+void start_os(void)
 {
 	assert(true  == os_initialized);
 	assert(false == os_running);
@@ -44,14 +65,69 @@ void startOS(void)
 /**
 * Initialisiert das Betriebssystem.
 */
-void initOS(void)
+void init_os(void)
 {
+	threadno_t idle_thread_no;
+	
 	assert(false == os_running);
-	// TODO: Idle Thread registrieren	
 	
 	intialize_uart();
 	initialize_system_timer();
+	
+	idle_thread_no = register_thread(idle_thread, PRIO_RESERVED_IDLE, "Idle Thread");
+	assert(0 == idle_thread_no);
+	
 	os_initialized = true;
+}
+
+
+/**
+* Bezieht das MSB eines Wortes
+*/
+#define HIGH_BYTE_FROM_PTR(ptr) (((uint16_t)(ptr) & 0xFF00U) >> 8)
+
+/**
+* Bezieht das LSB eines Wortes
+*/
+#define LOW_BYTE_FROM_PTR(ptr)   ((uint16_t)(ptr) & 0x00FFU)
+
+/**
+* Führt den system call REGISTER_THREAD aus.
+*
+* @param syscall Die system call-Instanz.
+*/
+static void exec_syscall_register_thread(const system_call_t *syscall) using 1
+{
+	static syscall_register_thread_t *sc;
+	static system_call_result_t *sr;
+	static threadno_t threadNumber;
+	
+	// system call und Ergebnis-Instanz beziehen
+	sc = (syscall_register_thread_t *)&syscall->call_data;
+	sr = get_system_call_result();
+	
+	printf("* registering thread \"%s\" with priority %d ...\r\n", sc->name, (uint16_t)sc->priority);
+	
+	// Sicherstellen, dass noch nicht alle Threads vergeben sind
+	if (MAX_THREADS == NrThreads)
+	{
+		printf("* error registering thread: no more threads allowed.\r\n");
+		threadNumber = THREAD_REGISTER_ERROR;
+	}
+	else
+	{
+		threadNumber = (threadno_t)NrThreads++; // NOTE: Logik nimmt an, dass niemals Threads entfernt werden.
+		printf("* assigning thread id: %d.\r\n", (uint16_t)threadNumber);
+		
+		// SP erstmals auf die nachfolgend abgelegte Rücksprungadresse + 5 byte für 5 PUSHes
+		tcb[threadNumber].sp  = (unsigned char)(&Stack[threadNumber][0] + 6);
+
+		// Startadresse des registrierten Threads als Rücksprungadresse sichern
+		Stack[threadNumber][0] = LOW_BYTE_FROM_PTR(sc->function);
+		Stack[threadNumber][1] = HIGH_BYTE_FROM_PTR(sc->function);
+	}
+	
+	sr->last_registered_thread = threadNumber;
 }
 
 /*****************************************************************************
@@ -62,10 +138,11 @@ void initOS(void)
 *****************************************************************************/
 timer0() interrupt 1 using 1						// Int Vector at 000BH, Reg Bank 1  
 {
+	static system_call_t *syscall;	// Zeiger auf den aktuell laufenden system call
+	
 	static uint8_t regIdx;			// Register-Index in der Schleife
 	static uint8_t idata *pi;				// Pointer in das interne RAM
 	static uint8_t idata *pd = POSRB0;	// Pointer auf die Registerbank 0
-	static int8_t CurrentThread = 0;	// Nr des laufenden Threads
 	static int8_t  NewThread = FIRST;	// Nr des naechsten Threads
 															// Am Anfang ist NewThread auf 
 															// einen erkennbar nicht gültigen
@@ -74,45 +151,70 @@ timer0() interrupt 1 using 1						// Int Vector at 000BH, Reg Bank 1
 
 	reload_system_timer();
 		
-	if (NrThreads > 0) {								// Sind Threads zu verwalten?
-
-		NewThread = (CurrentThread + 1)%NrThreads;	// Threadumschaltung
-
-		pi = (unsigned char idata *)SP;			// Kopie des Stackpointers
-
-		if (NewThread != CurrentThread) {		// Nur bei Threadwechsel müssen
-															// die Register gerettet werden!
-         
-			if (NewThread == FIRST)					// Beim allerersten Aufruf von                
-				NewThread = 0;							// timer0 liegt der SP noch
-															// im ursprünglichen Bereich
-															// nach Systemstart. Er darf
-															// nicht gerettet werden! Der
-															// bei RegisterThread(...)
-															// initialisierte Wert wird
-															// verwendet!
-			else {
-				tcb[CurrentThread].sp  =  pi;			// Sichern des SP
-			}               
-
-			// Retten von R0-R7 aus der von allen Threads gemeinsam genutzten Registerbank 0
-			for(regIdx=0; regIdx<REGISTER_COUNT; ++regIdx)
+	// Verarbeitung der system calls beginnen
+	if (is_system_call())
+	{
+		// system call beziehen und auswerten
+		syscall = get_system_call();
+		switch (syscall->type)
+		{
+			case REGISTER_THREAD:
 			{
-				tcb[CurrentThread].reg[regIdx]  = *(pd + regIdx);
+				exec_syscall_register_thread(syscall);
+				break;
 			}
-			
-			SP = tcb[NewThread].sp;						// geretteten SP des Threads
-			pi = (unsigned char idata *)SP;			// in Pointer pi laden
-			
-			// Wiederherstellen von R0-R7 in Registerbank 0
-			for(regIdx=0; regIdx<REGISTER_COUNT; ++regIdx)
-			{
-				*(pd + regIdx) = tcb[NewThread].reg[regIdx];
-			}
+			default:
+				assert(0);
+		}
 		
-			CurrentThread = NewThread;					// Ab jetzt ist der neue Thread
-		}                                         // der aktuelle!
-	}    
+		// system call zurücksetzen
+		clear_system_call();
+	}
+	else // if (is_system_call())
+	if (os_running)
+	{
+		// Sind Threads zu verwalten?
+		if (NrThreads > 0) 
+		{
+
+			NewThread = (CurrentThread + 1)%NrThreads;	// Threadumschaltung
+
+			pi = (unsigned char idata *)SP;			// Kopie des Stackpointers
+
+			if (NewThread != CurrentThread) {		// Nur bei Threadwechsel müssen
+																// die Register gerettet werden!
+					 
+				if (NewThread == FIRST)					// Beim allerersten Aufruf von                
+					NewThread = 0;							// timer0 liegt der SP noch
+																// im ursprünglichen Bereich
+																// nach Systemstart. Er darf
+																// nicht gerettet werden! Der
+																// bei RegisterThread(...)
+																// initialisierte Wert wird
+																// verwendet!
+				else {
+					tcb[CurrentThread].sp  =  pi;			// Sichern des SP
+				}               
+
+				// Retten von R0-R7 aus der von allen Threads gemeinsam genutzten Registerbank 0
+				for(regIdx=0; regIdx<REGISTER_COUNT; ++regIdx)
+				{
+					tcb[CurrentThread].reg[regIdx]  = *(pd + regIdx);
+				}
+				
+				SP = tcb[NewThread].sp;						// geretteten SP des Threads
+				pi = (unsigned char idata *)SP;			// in Pointer pi laden
+				
+				// Wiederherstellen von R0-R7 in Registerbank 0
+				for(regIdx=0; regIdx<REGISTER_COUNT; ++regIdx)
+				{
+					*(pd + regIdx) = tcb[NewThread].reg[regIdx];
+				}
+			
+				CurrentThread = NewThread;					// Ab jetzt ist der neue Thread
+			}                                         // der aktuelle!
+		}
+	}	
 }
 
 

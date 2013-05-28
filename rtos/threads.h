@@ -11,12 +11,17 @@ typedef void (thread_function_t)(void);
 /**
 * Thread-Nummer.
 */
-typedef uint8_t threadno_t;
+typedef int8_t threadno_t;
 
 /**
 * Definiert einen Fehlerfall bei der Threaderzeugung.
 */
 #define THREAD_REGISTER_ERROR ((threadno_t)-1)
+
+/**
+* Maximale Länge eines Threadnamens
+*/
+#define MAX_THREAD_NAME_LENGTH (20)
 
 /**
 * Beschreibt die Threadpriorität
@@ -36,6 +41,6 @@ typedef enum {
 * @param priority Priorität des Threads
 * @returns 		  	Die Nummer des Threads oder THREAD_REGISTER_ERROR im Fehlerfall.
 */
-threadno_t registerThread(thread_function_t* thread, thread_priority_t priority);
+threadno_t register_thread(const thread_function_t* thread, thread_priority_t priority, const unsigned char *threadname);
 
 #endif /* THREADS_H */
