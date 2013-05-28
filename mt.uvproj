@@ -363,32 +363,67 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>system</GroupName>
+          <GroupName>rtos_impl</GroupName>
           <Files>
-            <File>
-              <FileName>datatypes.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\system\datatypes.h</FilePath>
-            </File>
             <File>
               <FileName>rtos.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\system\rtos.c</FilePath>
-            </File>
-            <File>
-              <FileName>rtos.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\system\rtos.h</FilePath>
-            </File>
-            <File>
-              <FileName>v24.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\system\v24.h</FilePath>
+              <FilePath>.\rtos_impl\rtos.c</FilePath>
             </File>
             <File>
               <FileName>v24.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\system\v24.c</FilePath>
+              <FilePath>.\rtos_impl\v24.c</FilePath>
+            </File>
+            <File>
+              <FileName>v24.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\rtos_impl\v24.h</FilePath>
+            </File>
+            <File>
+              <FileName>timer.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\rtos_impl\timer.h</FilePath>
+            </File>
+            <File>
+              <FileName>timer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\rtos_impl\timer.c</FilePath>
+            </File>
+            <File>
+              <FileName>system.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\rtos_impl\system.h</FilePath>
+            </File>
+            <File>
+              <FileName>threads.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\rtos_impl\threads.c</FilePath>
+            </File>
+            <File>
+              <FileName>threads.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\rtos_impl\threads.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>rtos</GroupName>
+          <Files>
+            <File>
+              <FileName>datatypes.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\rtos\datatypes.h</FilePath>
+            </File>
+            <File>
+              <FileName>rtos.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\rtos\rtos.h</FilePath>
+            </File>
+            <File>
+              <FileName>threads.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\rtos\threads.h</FilePath>
             </File>
           </Files>
         </Group>

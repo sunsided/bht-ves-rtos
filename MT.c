@@ -32,7 +32,7 @@ void thread0(void)
 {
 	static int i = 0;
 
-	while(1) {
+	while(1) {			// PROBLEM: nullter Thread wird nie betreten.
 		i++;    
 	}
 }
@@ -44,7 +44,7 @@ void thread1(void)
 
 	while(1) {
 		i++;
-		printf("i = %d\n", i);
+		printf("T1 i = %d\n", i);
 	}
 }
 
