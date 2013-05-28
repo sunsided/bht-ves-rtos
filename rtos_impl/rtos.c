@@ -94,26 +94,26 @@ timer0() interrupt 1 using 1						// Int Vector at 000BH, Reg Bank 1
 				tcb[CurrentThread].sp  =  pi;			// Sichern des SP
 			}               
 
-			tcb[CurrentThread].r0  = *(pd + 0);		// Retten von R0-R7 aus der
-			tcb[CurrentThread].r1  = *(pd + 1);		// von allen Threads gemeinsam
-			tcb[CurrentThread].r2  = *(pd + 2);		// genutzten Registerbank 0
-			tcb[CurrentThread].r3  = *(pd + 3);    
-			tcb[CurrentThread].r4  = *(pd + 4);    
-			tcb[CurrentThread].r5  = *(pd + 5);    
-			tcb[CurrentThread].r6  = *(pd + 6);
-			tcb[CurrentThread].r7  = *(pd + 7);
+			tcb[CurrentThread].reg[0]  = *(pd + 0);		// Retten von R0-R7 aus der
+			tcb[CurrentThread].reg[1]  = *(pd + 1);		// von allen Threads gemeinsam
+			tcb[CurrentThread].reg[2]  = *(pd + 2);		// genutzten Registerbank 0
+			tcb[CurrentThread].reg[3]  = *(pd + 3);    
+			tcb[CurrentThread].reg[4]  = *(pd + 4);    
+			tcb[CurrentThread].reg[5]  = *(pd + 5);    
+			tcb[CurrentThread].reg[6]  = *(pd + 6);
+			tcb[CurrentThread].reg[7]  = *(pd + 7);
 			
 			SP = tcb[NewThread].sp;						// geretteten SP des Threads
 			pi = (unsigned char idata *)SP;			// in Pointer pi laden
 			
-			*(pd + 0) = tcb[NewThread].r0;			// Wiederherstellen von R0-R7
-			*(pd + 1) = tcb[NewThread].r1;			// in Registerbank 0
-			*(pd + 2) = tcb[NewThread].r2;
-			*(pd + 3) = tcb[NewThread].r3;
-			*(pd + 4) = tcb[NewThread].r4;
-			*(pd + 5) = tcb[NewThread].r5;
-			*(pd + 6) = tcb[NewThread].r6;
-			*(pd + 7) = tcb[NewThread].r7;
+			*(pd + 0) = tcb[NewThread].reg[0];			// Wiederherstellen von R0-R7
+			*(pd + 1) = tcb[NewThread].reg[1];			// in Registerbank 0
+			*(pd + 2) = tcb[NewThread].reg[2];
+			*(pd + 3) = tcb[NewThread].reg[3];
+			*(pd + 4) = tcb[NewThread].reg[4];
+			*(pd + 5) = tcb[NewThread].reg[5];
+			*(pd + 6) = tcb[NewThread].reg[6];
+			*(pd + 7) = tcb[NewThread].reg[7];
 		
 			CurrentThread = NewThread;					// Ab jetzt ist der neue Thread
 		}                                         // der aktuelle!

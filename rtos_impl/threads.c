@@ -13,7 +13,7 @@
 
 																	//Threadstacks 
 extern uint8_t idata Stack[MAX_THREADS][MAX_THREAD_STACKLENGTH]; 
-extern TCB xdata tcb[MAX_THREADS];									//Thread Cntrl. Bl.
+extern TCB 		 xdata tcb[MAX_THREADS];									//Thread Cntrl. Bl.
 extern uint8_t NrThreads;								//Anzahl registr.
 
 /*****************************************************************************
