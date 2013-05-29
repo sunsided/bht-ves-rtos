@@ -634,8 +634,9 @@ timer0() interrupt 1 using 1						// Int Vector at 000BH, Reg Bank 1
 			kernel_update_system_time();
 		}
 		
-		// Threadmanagement nur, wenn Threads registriert
-		if (thread_count > 0)
+		// Threadmanagement nur, wenn Threads registriert und
+		// Threadwechsel erwünscht ist.
+		if (thread_count > 0 && switch_context)
 		{
 			// sleep list nur modifizieren, wenn Timer regulär getickt
 			if (!is_system_call) 

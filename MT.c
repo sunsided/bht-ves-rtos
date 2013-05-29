@@ -28,9 +28,9 @@
 #include "rtos/rtos.h"
 
 /**
-* Test-Semaphor.
+* Test-Semaphore
 */
-static semaphore_t test_semaphore;
+static semaphore_t test_semaphore[2];
 
 // Alle Threads laufen in Registerbank 0
 void thread0(void)
@@ -112,7 +112,7 @@ void register_threads() {
 */
 #define ASSERT_SEMAPHORE_INITIALIZED(sem_result, sem) \
 	assert(SEM_SUCCESS == (sem_result)); \
-	assert(0xFF > (sem.semaphore_id)); \
+	assert(0xFF > ((sem).semaphore_id)); \
 
 /**
 * Initialisiert die Semaphore
@@ -120,9 +120,13 @@ void register_threads() {
 void initialize_semaphores() {
 	sem_error_t result;
 		
-	result = os_semaphore_init(&test_semaphore, 10);
-	ASSERT_SEMAPHORE_INITIALIZED(result, test_semaphore);
-	printf("Test-Semaphor initialisiert als ID %u.\r\n", (uint16_t)test_semaphore.semaphore_id);
+	result = os_semaphore_init(&test_semaphore[0], 10);
+	ASSERT_SEMAPHORE_INITIALIZED(result, test_semaphore[0]);
+	printf("Test-Semaphor 1 initialisiert als ID %u.\r\n", (uint16_t)test_semaphore[0].semaphore_id);
+	
+	result = os_semaphore_init(&test_semaphore[1], 42);
+	ASSERT_SEMAPHORE_INITIALIZED(result, test_semaphore[1]);
+	printf("Test-Semaphor 2 initialisiert als ID %u.\r\n", (uint16_t)test_semaphore[1].semaphore_id);
 }
 
 void main(void) {
