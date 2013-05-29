@@ -26,7 +26,7 @@ typedef struct {
 	/**
 	* Gibt die Art des system calls an
 	*/
-	system_call_type type;
+	volatile system_call_type type;
 	
 	/**
 	* System call-Zugriff
@@ -58,7 +58,7 @@ typedef struct {
 	/**
 	* Gibt die Art des system calls an
 	*/
-	system_call_type type;
+	volatile system_call_type type;
 	
 	/**
 	* System call-Ergebnisse

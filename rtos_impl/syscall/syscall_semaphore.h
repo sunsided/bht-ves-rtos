@@ -10,7 +10,7 @@ typedef struct {
 	/**
 	* Initiale Größe des Semaphors
 	*/
-	sem_size_t initial_size;
+	volatile sem_size_t initial_size;
 	
 } syscall_init_semaphore_t;
 
@@ -21,7 +21,7 @@ typedef struct {
 	/**
 	* ID des Semaphors
 	*/
-	sem_id_t semaphore_id;
+	volatile sem_id_t semaphore_id;
 	
 } syscall_modify_semaphore_t;
 
@@ -32,7 +32,7 @@ typedef struct {
 	/**
 	* ID des Semaphors
 	*/
-	sem_id_t semaphore_id;
+	volatile sem_id_t semaphore_id;
 	
 } syscall_semaphore_result_t;
 

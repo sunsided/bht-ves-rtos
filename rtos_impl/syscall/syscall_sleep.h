@@ -11,7 +11,7 @@ typedef struct {
 	/**
 	* Schlafdauer in ms.
 	*/
-	sleep_t sleep_duration;
+	volatile sleep_t sleep_duration;
 	
 } syscall_sleep_t;
 

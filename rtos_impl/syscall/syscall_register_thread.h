@@ -10,17 +10,17 @@ typedef struct {
 	/**
 	* Die Priorität des Threads
 	*/
-	thread_priority_t priority;
+	volatile thread_priority_t priority;
 	
 	/**
 	* Zeiger auf die Thread-Funktion.
 	*/
-	thread_function_t *function;
+	volatile thread_function_t *function;
 	
 	/**
 	* Name des Threads
 	*/
-	unsigned char *name;
+	volatile unsigned char *name;
 	
 } syscall_register_thread_t;
 
@@ -31,7 +31,7 @@ typedef struct {
 	/**
 	* ID des zuletzt registrierten Threads
 	*/
-	threadno_t last_registered_thread;
+	volatile threadno_t last_registered_thread;
 	
 } syscall_register_thread_result_t;
 
