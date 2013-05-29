@@ -20,7 +20,7 @@ void os_sleep(const sleep_t ms)
 	assert(SLEEP == sc->type);
 	
 	// TODO: assert, dass nur aus Thread aufgerufen wird.
-
+	
 	// Zeit setzen
 	calldata = &sc->call_data.sleep;
 	calldata->sleep_duration = ms;

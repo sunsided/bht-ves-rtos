@@ -59,6 +59,7 @@ void thread2(void)
 	
 	while(1) {
 		i++;
+		os_sleep(0);
 	}
 }
 

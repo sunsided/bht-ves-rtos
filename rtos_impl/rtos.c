@@ -348,6 +348,13 @@ static void kernel_add_to_sleep_list(const uint8_t thread_id) using 1
 			tcb_list[thread_id].next = token_id;
 			tcb_list[thread_id].tcb.sleep_duration = thread_sleep_time;
 			
+			// Die nachfolgenden Elemente müssen entsprechend der reduzierten Zeit
+			// korrigiert werden.
+			if (NIL != token_id)
+			{
+				tcb_list[token_id].tcb.sleep_duration -= thread_sleep_time;
+			}
+			
 			// Wenn ein Vorgängerelement existiert, dieses anpassen
 			if (NIL != prev_id) 
 			{
@@ -396,10 +403,10 @@ static void kernel_update_sleep_list() using 1
 	{
 		thread_id = tcb_list_sleep_head;
 
+		tcb_list_sleep_head = tcb_list[thread_id].next;	
 		tcb_list[thread_id].tcb.sleep_duration = 0;
 		tcb_list[thread_id].next = NIL;
-
-		tcb_list_sleep_head = tcb_list[thread_id].next;		
+	
 		kernel_add_to_ready_list(thread_id);
 	}
 }
@@ -473,6 +480,12 @@ static void kernel_exec_syscall_sleep(const system_call_t *syscall) using 1
 	tcb = &tcb_list_item->tcb;
 	tcb->sleep_duration = sc->sleep_duration;
 		
+	// Zeit korrigieren
+	if (tcb->sleep_duration <= TICK_DURATION_MS)
+	{
+		tcb->sleep_duration = TICK_DURATION_MS;
+	}
+	
 	// Aus ready-Liste entfernen
 	kernel_remove_from_ready_list(current_thread_id);
 	kernel_add_to_sleep_list(current_thread_id);
