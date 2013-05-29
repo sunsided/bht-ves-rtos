@@ -21,7 +21,7 @@ typedef struct
 	/**
 	* Nächster Semaphor in der Warteliste.
 	*/
-	sem_id_t next;
+	uint8_t list_head;
 	
 } sem_list_item_t;
 

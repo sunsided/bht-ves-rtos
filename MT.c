@@ -40,6 +40,7 @@ void thread0(void)
 	while(1) {
 		i++; 
 		os_sleep(1000);
+		// os_semaphore_post(&test_semaphore[0]);
 	}
 }
 
@@ -49,12 +50,12 @@ void thread1(void)
 	static systime_t time;
 
 	while(1) {
+		os_semaphore_wait(&test_semaphore[0]);
+		
 		i++;
 		time = os_time();
 		
-		printf("T1 i = %d, system time: %f s\n", i, time/1000.0F);
-		
-		os_sleep(1000);
+		printf("T1 i = %d, system time: %.3f s\n", i, time/1000.0F);
 	}
 }
 

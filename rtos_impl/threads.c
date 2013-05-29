@@ -4,9 +4,15 @@
 #include "timer.h"
 #include "threads.h"
 
-extern uint8_t thread_count;
-extern int8_t current_thread_id;
-extern tcb_list_item_t xdata tcb_list[MAX_THREADS];
+/**
+* Liefert die ID des aktuellen Threads
+*
+* @returns ID des aktuellen Threads oder kleiner null, wenn kein Thread aktiv ist.
+*/
+threadno_t kernel_get_current_thread_id()
+{
+	return current_thread_id;
+}
 
 /**
 * Liefert die Daten des aktuellen Threads

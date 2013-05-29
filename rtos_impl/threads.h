@@ -94,7 +94,29 @@ typedef struct {
 } tcb_list_item_t;
 
 /**
+* Anzahl der registrierten Threads
+*/
+extern volatile uint8_t thread_count;
+
+/**
+* ID des aktuellen Threads
+*/
+extern volatile threadno_t current_thread_id;
+
+/**
+* Liste der Thread Control Blocks
+*/
+extern tcb_list_item_t xdata tcb_list[MAX_THREADS];
+
+/**
+* Stack-Pointer.
+*/
+extern uint8_t idata Stack[MAX_THREADS][MAX_THREAD_STACKLENGTH];
+
+/**
 * Liefert die Daten des aktuellen Threads
+*
+* @returns Thread-lokale Daten
 */
 thread_data_t* os_get_current_thread_data();
 
@@ -102,5 +124,26 @@ thread_data_t* os_get_current_thread_data();
 * Liefert die Daten des aktuellen Threads
 */
 thread_data_t* kernel_get_current_thread_data();
+
+/**
+* Liefert die ID des aktuellen Threads
+*
+* @returns ID des aktuellen Threads oder kleiner null, wenn kein Thread aktiv ist.
+*/
+threadno_t kernel_get_current_thread_id();
+
+/**
+* Entfernt einen thread aus der ready-Liste.
+*
+* @param thread_id Die id des zu entfernenden Threads.
+*/
+void kernel_remove_from_ready_list(const uint8_t thread_id);
+
+/**
+* Fügt einen Thread zur ready-Liste hinzu.
+*
+* @param thread_id Die ID des einzusortierenden Threads.
+*/
+void kernel_add_to_ready_list(const uint8_t thread_id);
 
 #endif /* IMPL__THREADS_H */

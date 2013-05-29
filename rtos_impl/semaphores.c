@@ -1,6 +1,7 @@
 #include <assert.h>
 #include "system.h"
 #include "timer.h"
+#include "threads.h"
 #include "systemcall.h"
 #include "semaphores.h"
 
@@ -25,7 +26,7 @@ void os_initialize_semaphore_list(void)
 	for (sem_idx = 0; sem_idx < MAX_SEMAPHORE_COUNT; ++sem_idx)
 	{
 		semaphore_list[sem_idx].value = 0;
-		semaphore_list[sem_idx].next = NIL;
+		semaphore_list[sem_idx].list_head = NIL;
 	}
 }
 
@@ -115,14 +116,14 @@ sem_error_t os_semaphore_post(const semaphore_t* semaphore)
 
 	// Wenn kein Thread aufgeweckt werden muss,
 	// system call abbrechen.
-	if (NIL == semaphore_list[id].next)
+	if (NIL == semaphore_list[id].list_head)
 	{
 		os_cancel_execute_system_call();
 		return SEM_SUCCESS;
 	}
 	
 	// Affentest
-	assert(NIL == semaphore_list[id].next);
+	assert(NIL == semaphore_list[id].list_head);
 	
 	// Mindestens ein Thread wartet auf den Semaphor.
 	// system call ausführen
@@ -179,7 +180,7 @@ sem_error_t os_semaphore_wait(const semaphore_t* semaphore)
 	}
 
 	// Affentest
-	assert(NIL == semaphore_list[id].next);
+	assert(NIL != semaphore_list[id].list_head);
 	
 	// Semaphor war leer - Blockierung anfordern.
 	// system call ausführen
@@ -219,12 +220,98 @@ void kernel_exec_syscall_sem_init(const system_call_t *syscall) using 1
 	
 	// Control Block-Listenitem beziehen und initialisieren
 	sem_list_item = &semaphore_list[semaphore_id];
-	sem_list_item->next = NIL;
+	sem_list_item->list_head = NIL;
 	sem_list_item->value = sc->initial_size;
 	
 	// Ergebnis des system calls speichern
 	sr = &kernel_get_system_call_result()->result_data.semaphore;
 	sr->semaphore_id = semaphore_id;	
+}
+
+/**
+* Fügt einen Thread in die Liste eines Semaphors ein.
+*
+* @param semaphor_id 	Die ID des Semaphors
+* @param threaD_id		Die ID des Threads
+*/
+static void kernel_add_to_semaphore_list(const sem_id_t semaphore_id, const uint8_t thread_id) using 1
+{
+	static uint8_t					token_id;
+	
+	// Zeiger extrahieren, um array-lookups zu reduzieren
+	static tcb_list_item_t *token;
+	static tcb_list_item_t *prev;
+	static tcb_list_item_t *new_item;
+	
+	new_item = &tcb_list[thread_id];
+		
+	// Sonderfall: Es handelt sich um den ersten Thread
+	if (NIL == semaphore_list[semaphore_id].list_head) 
+	{	
+		semaphore_list[semaphore_id].list_head = thread_id;
+		new_item->next = NIL;
+	}
+	else // (NIL == semaphore_list[semaphore_id].list_head) 
+	{
+		token_id = semaphore_list[semaphore_id].list_head;
+		prev = NULL;
+		
+		while(NIL != token_id)
+		{
+			token = &tcb_list[token_id];
+			
+			// Wenn das neue item höherer Priorität als das bestehende item ist,
+			// soll der neue Eintrag vor dem bestehenden Eintrag einsortiert werden.
+			if (new_item->tcb.priority > token->tcb.priority)
+			{
+				new_item->next = token_id;
+				
+				// Wenn ein Vorgänger existiert, wird dessen next-Zeiger
+				// auf den neuen Thread gesetzt.
+				if (NULL != prev)
+				{
+					prev->next = thread_id;
+				}
+				else
+				{
+					// Da kein Vorgänger existiert, sind wir am Beginn der
+					// Liste und müssen somit den head-Zeiger auf uns stellen.
+					semaphore_list[semaphore_id].list_head = thread_id;
+				}
+				break;
+			}
+			else // if (new_item->priority > token->priority)
+			{
+				// Existiert ein weiteres Element in der Liste,
+				// wird der Zeiger auf dieses gesetzt und die Operation wiederholt.
+				// Der prev-Zeiger wird auf das aktuelle token gesetzt.
+				if (NIL != token->next)
+				{
+					prev = token;
+					token_id = token->next;
+					continue;
+				}
+
+				// An dieser Stelle angekommen, ist die Priorität des neuen
+				// Threads geringer als die des idle-Threads, was einen
+				// Fehler darstellt.
+				assert(NULL);
+				break;
+			}
+		}
+		assert(NIL != token_id);
+	}
+}
+
+/**
+* Fügt einen Thread in die Liste eines Semaphors ein.
+*
+* @param semaphor_id 	Die ID des Semaphors
+* @param threaD_id		Die ID des Threads
+*/
+static int8_t kernel_remove_to_semaphore_list(sem_id_t semaphore_id) using 1
+{
+	
 }
 
 /**
@@ -234,8 +321,15 @@ void kernel_exec_syscall_sem_init(const system_call_t *syscall) using 1
 */
 void kernel_exec_syscall_sem_wait(const system_call_t *syscall) using 1
 {
-	// TODO: Aktuellen Thread von ready-Liste entfernen
-	// TODO: Thread auf Liste des Semaphors setzen
+	static int8_t 		thread_id;
+	static sem_id_t 	semaphore_id;
+		
+	// Aktuellen Thread von ready-Liste entfernen
+	thread_id = kernel_get_current_thread_id();
+	kernel_remove_from_ready_list(thread_id);
+	
+	// Thread auf Liste des Semaphors setzen
+	kernel_add_to_semaphore_list(semaphore_id, thread_id);
 }
 
 /**
@@ -245,6 +339,16 @@ void kernel_exec_syscall_sem_wait(const system_call_t *syscall) using 1
 */
 void kernel_exec_syscall_sem_post(const system_call_t *syscall) using 1
 {
-	// TODO: Ersten Thread von Liste des Semaphors entfernen
-	// TODO: Thread auf ready-Liste setzen
+	static int8_t 		thread_id;
+	static sem_id_t 	semaphore_id;
+	
+	// Ersten Thread von Liste des Semaphors entfernen
+	thread_id = kernel_get_current_thread_id();
+	thread_id = kernel_remove_to_semaphore_list(semaphore_id);
+	
+	// Thread auf ready-Liste setzen
+	if (NIL != thread_id)
+	{
+		kernel_add_to_ready_list(thread_id);
+	}
 }

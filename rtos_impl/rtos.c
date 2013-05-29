@@ -72,7 +72,7 @@ volatile uint8_t thread_count = 0;
 /**
 * Index des aktuellen Threads
 */
-volatile int8_t current_thread_id = NIL;
+volatile threadno_t current_thread_id = -1;
 
 /**
 * Die Systemzeit in Millisekunden seit Start.
@@ -260,7 +260,7 @@ static void kernel_add_to_ready_list(const uint8_t thread_id) using 1
 *
 * @param thread_id Die id des zu entfernenden Threads.
 */
-static void kernel_remove_from_ready_list(const uint8_t thread_id) using 1
+void kernel_remove_from_ready_list(const uint8_t thread_id) using 1
 {
 	static uint8_t token_id;
 	
@@ -513,7 +513,7 @@ uint8_t kernel_schedule_next_thread() using 1
 	// Wenn die Priorität des aktuellen Threads übereinstimmend mit
 	// der Priorität am Listenkopf ist und ein nachfolgendes Element
 	// mit selber Priorität existiert, soll dieses verwendet werden.
-	if (current_is_ready && NIL != current_thread_id && current_priority == head_priority)
+	if (current_is_ready && 0 <= current_thread_id && current_priority == head_priority)
 	{
 		next_thread_id = tcb_list[current_thread_id].next;
 		if (current_priority == tcb_list[tcb_list[current_thread_id].next].tcb.priority) 
