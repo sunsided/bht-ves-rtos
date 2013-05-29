@@ -11,6 +11,7 @@
 #include <string.h>
 #include <assert.h>
 
+#include "system.h"
 #include "v24.h"
 #include "timer.h"
 #include "systemcall.h"
@@ -357,6 +358,34 @@ static void kernel_add_to_sleep_list(const uint8_t thread_id) using 1
 }
 
 /**
+* Aktualisiert die sleep-Liste.
+*/
+static void kernel_update_sleep_list() using 1
+{
+	static uint8_t thread_id;
+	
+	if (NIL == tcb_list_sleep_head) {
+		return;
+	}
+	
+	// Schlafzeit am head reduzieren
+	tcb_list[tcb_list_sleep_head].tcb.sleep_duration -= TICK_DURATION_MS;
+	
+	// Solange sich an der Spitze der Liste items mit Schlafzeiten
+	// kleiner oder gleich null befinden (etwa, weil sich identische 
+	// Restzeiten ergaben), diese entfernen und rechenwillig machen.
+	while (NIL != tcb_list_sleep_head && tcb_list[tcb_list_sleep_head].tcb.sleep_duration <= 0)
+	{
+		thread_id = tcb_list_sleep_head;
+
+		tcb_list[thread_id].tcb.sleep_duration = 0;
+		tcb_list_sleep_head = tcb_list[thread_id].next;
+		
+		kernel_add_to_ready_list(thread_id);
+	}
+}
+
+/**
 * Führt den system call REGISTER_THREAD aus.
 *
 * @param syscall Die system call-Instanz.
@@ -514,7 +543,7 @@ timer0() interrupt 1 using 1						// Int Vector at 000BH, Reg Bank 1
 	else // if (is_system_call())
 	if (os_running && thread_count > 0)
 	{
-		// TODO: Liste der Rechenwilligen Threads durchlaufen
+		kernel_update_sleep_list();
 		next_thread_id = kernel_schedule_next_thread();
 
 		pi = (unsigned char idata *)SP;			// Kopie des Stackpointers
