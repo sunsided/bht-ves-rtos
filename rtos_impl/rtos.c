@@ -236,6 +236,47 @@ static void kernel_add_thread_to_ready_list(const uint8_t thread_id) using 1
 }
 
 /**
+* Entfernt einen thread aus der ready-Liste.
+*
+* @param thread_id Die id des zu entfernenden Threads.
+*/
+static void kernel_remove_from_ready_list(const uint8_t thread_id) using 1
+{
+	static uint8_t token_id;
+	
+	// wenn keine rechenwilligen Threads registriert sind - abbrechen.
+	if (NIL == tcb_list_ready_head) {
+		return;
+	}
+	
+	// ist der zu entfernende Thread am Kopf der Liste, 
+	// Liste auf den next-Eintrag ändern.
+	if (thread_id == tcb_list_ready_head) 
+	{
+		tcb_list_ready_head = tcb_list[thread_id].next;
+		tcb_list[thread_id].next = NIL;
+		return;
+	}
+	
+	// Liste durchlaufen, bis Vorgänger von thread_id gefunden
+	token_id = tcb_list_ready_head;
+	while (NIL != token_id)
+	{
+		// Wenn der Vorgänger gefunden wurde, den next-Zeiger
+		// auf den Nachfolger des aktuellen Threads setzen.
+		if (thread_id == tcb_list[token_id].next) 
+		{
+			tcb_list[token_id].next = tcb_list[thread_id].next;
+			tcb_list[thread_id].next = NIL;
+			break;
+		}
+		
+		// Token aufd den Nachfolger setzen
+		token_id = tcb_list[token_id].next;
+	}
+}
+
+/**
 * Führt den system call REGISTER_THREAD aus.
 *
 * @param syscall Die system call-Instanz.
