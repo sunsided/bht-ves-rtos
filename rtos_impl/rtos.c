@@ -3,7 +3,8 @@
 *      Implementierung des Echtzeitkernels                                   *
 *                                                                            *
 *****************************************************************************/
- 
+
+// NOTE: Verwendung von assert aus mehreren Registerbanken erzeugt WARNING L15
 
 #include <reg51.h>
 #include <stdlib.h>
@@ -149,12 +150,13 @@ static void kernel_strncpy(unsigned char *dst, const unsigned char *src, uint8_t
 *
 * @param syscall Die system call-Instanz.
 */
-static void exec_syscall_register_thread(const system_call_t *syscall) using 1
+static void kernel_exec_syscall_register_thread(const system_call_t *syscall) using 1
 {
 	static syscall_register_thread_t *sc;
 	static syscall_register_thread_result_t *sr;
 	static threadno_t threadNumber;
 	static tcb_t *tcb;
+	static tcb_list_item_t *tcb_list_item;
 	
 	// system call und Ergebnis-Instanz beziehen
 	sc = (syscall_register_thread_t *)&syscall->call_data;
@@ -169,8 +171,12 @@ static void exec_syscall_register_thread(const system_call_t *syscall) using 1
 	{	
 		threadNumber = (threadno_t)thread_count++; // NOTE: Logik nimmt an, dass niemals Threads entfernt werden.
 		
-		// Control Block beziehen und Priorität setzen
-		tcb = &tcb_list[threadNumber].tcb;
+		// Control Block-Listenitem beziehen und initialisieren
+		tcb_list_item = &tcb_list[threadNumber];
+		tcb_list_item->next = NIL;
+		
+		// Control Block beziehen und Werte setzen
+		tcb = &tcb_list_item->tcb;
 		tcb->priority = sc->priority;
 		kernel_strncpy(tcb->thread_data.name, sc->name, MAX_THREAD_NAME_LENGTH);
 		
@@ -215,11 +221,12 @@ timer0() interrupt 1 using 1						// Int Vector at 000BH, Reg Bank 1
 		{
 			case REGISTER_THREAD:
 			{
-				exec_syscall_register_thread(syscall);
+				kernel_exec_syscall_register_thread(syscall);
 				break;
 			}
 			default:
 				assert(0);
+				break;
 		}
 		
 		// system call zurücksetzen
