@@ -44,6 +44,10 @@ sem_error_t os_semaphore_init(semaphore_t* semaphore, const sem_size_t sem_size)
 	
 	if (0 == semaphore) return SEM_INVALID_SEMAPHORE;
 	
+	// Debugging: Auf ungültigen Wert initialisieren
+	semaphore->semaphore_id = NIL;
+	
+	// System call beginnen
 	sc = os_begin_system_call(SEMAPHORE_INIT);
 	assert(SEMAPHORE_INIT == sc->type);
 	
@@ -198,6 +202,29 @@ sem_error_t os_semaphore_wait(const semaphore_t* semaphore)
 */
 void kernel_exec_syscall_sem_init(const system_call_t *syscall) using 1
 {
+	static syscall_init_semaphore_t		*sc;
+	static syscall_semaphore_result_t	*sr;
+	static sem_id_t 									semaphore_id;
+	static sem_list_item_t 						*sem_list_item;
+	
+	// system call und Ergebnis-Instanz beziehen
+	sc = (syscall_init_semaphore_t *)&syscall->call_data;
+	
+	// Sicherstellen, dass noch nicht alle Semaphore vergeben sind.
+	// Überprüfung wird bereits im user space ausgeführt.
+	assert (MAX_SEMAPHORE_COUNT != semaphore_count);
+	
+	// Thread ID ermitteln und 
+	semaphore_id = (threadno_t)semaphore_count++; // NOTE: Logik nimmt an, dass niemals Semaphore entfernt werden.
+	
+	// Control Block-Listenitem beziehen und initialisieren
+	sem_list_item = &semaphore_list[semaphore_id];
+	sem_list_item->next = NIL;
+	sem_list_item->value = 0;
+	
+	// Ergebnis des system calls speichern
+	sr = &kernel_get_system_call_result()->result_data.semaphore;
+	sr->semaphore_id = semaphore_id;	
 }
 
 /**
