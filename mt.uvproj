@@ -420,6 +420,16 @@
               <FileType>1</FileType>
               <FilePath>.\rtos_impl\time.c</FilePath>
             </File>
+            <File>
+              <FileName>semaphores.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\rtos_impl\semaphores.c</FilePath>
+            </File>
+            <File>
+              <FileName>semaphores.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\rtos_impl\semaphores.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -445,6 +455,11 @@
               <FileType>5</FileType>
               <FilePath>.\rtos\time.h</FilePath>
             </File>
+            <File>
+              <FileName>semaphores.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\rtos\semaphores.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -459,6 +474,11 @@
               <FileName>syscall_sleep.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\rtos_impl\syscall\syscall_sleep.h</FilePath>
+            </File>
+            <File>
+              <FileName>syscall_semaphore.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\rtos_impl\syscall\syscall_semaphore.h</FilePath>
             </File>
           </Files>
         </Group>

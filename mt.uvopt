@@ -126,24 +126,7 @@
           <Name>(5048=158,112,364,308,0)(98=-1,-1,-1,-1,0)(82=-1,-1,-1,-1,0)(83=-1,-1,-1,-1,0)(84=-1,-1,-1,-1,0)(85=-1,-1,-1,-1,0)(86=-1,-1,-1,-1,0)(5040=-1,-1,-1,-1,0)(5049=-1,-1,-1,-1,0)(5050=-1,-1,-1,-1,0)(5047=-1,-1,-1,-1,0)(80=-1,-1,-1,-1,0)(5057=-1,-1,-1,-1,0)(91=-1,-1,-1,-1,0)(92=-1,-1,-1,-1,0)(5045=-1,-1,-1,-1,0)(5046=-1,-1,-1,-1,0)(5031=-1,-1,-1,-1,0)(3000=-1,-1,-1,-1,0)</Name>
         </SetRegEntry>
       </TargetDriverDllRegistry>
-      <Breakpoint>
-        <Bp>
-          <Number>0</Number>
-          <Type>0</Type>
-          <LineNumber>62</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>-16767515</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>MT.C</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\mt\MT\62</Expression>
-        </Bp>
-      </Breakpoint>
+      <Breakpoint/>
       <WatchWindow1>
         <Ww>
           <count>0</count>
@@ -190,12 +173,12 @@
         <Ww>
           <count>1</count>
           <WinNumber>2</WinNumber>
-          <ItemText>tcb_list[1].tcb.sleep_duration,0x0A</ItemText>
+          <ItemText>semaphore_list[0]</ItemText>
         </Ww>
         <Ww>
           <count>2</count>
           <WinNumber>2</WinNumber>
-          <ItemText>tcb_list[2].tcb.sleep_duration,0x0A</ItemText>
+          <ItemText>semaphore_list[1]</ItemText>
         </Ww>
       </WatchWindow2>
       <DebugFlag>
@@ -246,7 +229,7 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>83</TopLine>
+      <TopLine>78</TopLine>
       <CurrentLine>92</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\STARTUP.A51</PathWithFileName>
@@ -262,8 +245,8 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>49</TopLine>
-      <CurrentLine>62</CurrentLine>
+      <TopLine>97</TopLine>
+      <CurrentLine>133</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\MT.c</PathWithFileName>
       <FilenameWithoutPath>MT.c</FilenameWithoutPath>
@@ -305,8 +288,8 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>481</TopLine>
-      <CurrentLine>486</CurrentLine>
+      <TopLine>573</TopLine>
+      <CurrentLine>595</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\rtos_impl\rtos.c</PathWithFileName>
       <FilenameWithoutPath>rtos.c</FilenameWithoutPath>
@@ -367,10 +350,10 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>11</ColumnNumber>
+      <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>57</TopLine>
-      <CurrentLine>74</CurrentLine>
+      <TopLine>55</TopLine>
+      <CurrentLine>98</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\rtos_impl\timer.c</PathWithFileName>
       <FilenameWithoutPath>timer.c</FilenameWithoutPath>
@@ -385,8 +368,8 @@
       <Focus>0</Focus>
       <ColumnNumber>24</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>1</TopLine>
-      <CurrentLine>12</CurrentLine>
+      <TopLine>0</TopLine>
+      <CurrentLine>0</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\rtos_impl\system.h</PathWithFileName>
       <FilenameWithoutPath>system.h</FilenameWithoutPath>
@@ -399,10 +382,10 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>0</ColumnNumber>
+      <ColumnNumber>34</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>1</TopLine>
-      <CurrentLine>1</CurrentLine>
+      <TopLine>52</TopLine>
+      <CurrentLine>74</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\rtos_impl\threads.c</PathWithFileName>
       <FilenameWithoutPath>threads.c</FilenameWithoutPath>
@@ -417,8 +400,8 @@
       <Focus>0</Focus>
       <ColumnNumber>28</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>43</TopLine>
-      <CurrentLine>75</CurrentLine>
+      <TopLine>0</TopLine>
+      <CurrentLine>0</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\rtos_impl\threads.h</PathWithFileName>
       <FilenameWithoutPath>threads.h</FilenameWithoutPath>
@@ -433,7 +416,7 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>51</TopLine>
+      <TopLine>43</TopLine>
       <CurrentLine>53</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\rtos_impl\systemcall.c</PathWithFileName>
@@ -449,8 +432,8 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>77</TopLine>
-      <CurrentLine>95</CurrentLine>
+      <TopLine>0</TopLine>
+      <CurrentLine>0</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\rtos_impl\systemcall.h</PathWithFileName>
       <FilenameWithoutPath>systemcall.h</FilenameWithoutPath>
@@ -463,13 +446,45 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>0</ColumnNumber>
+      <ColumnNumber>32</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>1</TopLine>
-      <CurrentLine>23</CurrentLine>
+      <TopLine>3</TopLine>
+      <CurrentLine>29</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\rtos_impl\time.c</PathWithFileName>
       <FilenameWithoutPath>time.c</FilenameWithoutPath>
+      <RteFlg>0</RteFlg>
+      <bShared>0</bShared>
+    </File>
+    <File>
+      <GroupNumber>2</GroupNumber>
+      <FileNumber>14</FileNumber>
+      <FileType>1</FileType>
+      <tvExp>0</tvExp>
+      <Focus>0</Focus>
+      <ColumnNumber>0</ColumnNumber>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <TopLine>200</TopLine>
+      <CurrentLine>223</CurrentLine>
+      <bDave2>0</bDave2>
+      <PathWithFileName>.\rtos_impl\semaphores.c</PathWithFileName>
+      <FilenameWithoutPath>semaphores.c</FilenameWithoutPath>
+      <RteFlg>0</RteFlg>
+      <bShared>0</bShared>
+    </File>
+    <File>
+      <GroupNumber>2</GroupNumber>
+      <FileNumber>15</FileNumber>
+      <FileType>5</FileType>
+      <tvExp>0</tvExp>
+      <Focus>0</Focus>
+      <ColumnNumber>0</ColumnNumber>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <TopLine>0</TopLine>
+      <CurrentLine>0</CurrentLine>
+      <bDave2>0</bDave2>
+      <PathWithFileName>.\rtos_impl\semaphores.h</PathWithFileName>
+      <FilenameWithoutPath>semaphores.h</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -483,7 +498,7 @@
     <RteFlg>0</RteFlg>
     <File>
       <GroupNumber>3</GroupNumber>
-      <FileNumber>14</FileNumber>
+      <FileNumber>16</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -499,7 +514,7 @@
     </File>
     <File>
       <GroupNumber>3</GroupNumber>
-      <FileNumber>15</FileNumber>
+      <FileNumber>17</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -515,14 +530,14 @@
     </File>
     <File>
       <GroupNumber>3</GroupNumber>
-      <FileNumber>16</FileNumber>
+      <FileNumber>18</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>1</TopLine>
-      <CurrentLine>1</CurrentLine>
+      <TopLine>0</TopLine>
+      <CurrentLine>0</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\rtos\threads.h</PathWithFileName>
       <FilenameWithoutPath>threads.h</FilenameWithoutPath>
@@ -531,7 +546,7 @@
     </File>
     <File>
       <GroupNumber>3</GroupNumber>
-      <FileNumber>17</FileNumber>
+      <FileNumber>19</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -545,6 +560,22 @@
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
+    <File>
+      <GroupNumber>3</GroupNumber>
+      <FileNumber>20</FileNumber>
+      <FileType>5</FileType>
+      <tvExp>0</tvExp>
+      <Focus>0</Focus>
+      <ColumnNumber>0</ColumnNumber>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <TopLine>0</TopLine>
+      <CurrentLine>0</CurrentLine>
+      <bDave2>0</bDave2>
+      <PathWithFileName>.\rtos\semaphores.h</PathWithFileName>
+      <FilenameWithoutPath>semaphores.h</FilenameWithoutPath>
+      <RteFlg>0</RteFlg>
+      <bShared>0</bShared>
+    </File>
   </Group>
 
   <Group>
@@ -555,7 +586,7 @@
     <RteFlg>0</RteFlg>
     <File>
       <GroupNumber>4</GroupNumber>
-      <FileNumber>18</FileNumber>
+      <FileNumber>21</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -571,7 +602,7 @@
     </File>
     <File>
       <GroupNumber>4</GroupNumber>
-      <FileNumber>19</FileNumber>
+      <FileNumber>22</FileNumber>
       <FileType>5</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
@@ -582,6 +613,22 @@
       <bDave2>0</bDave2>
       <PathWithFileName>.\rtos_impl\syscall\syscall_sleep.h</PathWithFileName>
       <FilenameWithoutPath>syscall_sleep.h</FilenameWithoutPath>
+      <RteFlg>0</RteFlg>
+      <bShared>0</bShared>
+    </File>
+    <File>
+      <GroupNumber>4</GroupNumber>
+      <FileNumber>23</FileNumber>
+      <FileType>5</FileType>
+      <tvExp>0</tvExp>
+      <Focus>0</Focus>
+      <ColumnNumber>0</ColumnNumber>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <TopLine>0</TopLine>
+      <CurrentLine>0</CurrentLine>
+      <bDave2>0</bDave2>
+      <PathWithFileName>.\rtos_impl\syscall\syscall_semaphore.h</PathWithFileName>
+      <FilenameWithoutPath>syscall_semaphore.h</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
