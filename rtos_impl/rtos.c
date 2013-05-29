@@ -16,6 +16,7 @@
 #include "timer.h"
 #include "systemcall.h"
 #include "threads.h"
+#include "semaphores.h"
 
 #include "../rtos/rtos.h"
 
@@ -48,13 +49,6 @@ uint8_t idata Stack[MAX_THREADS][MAX_THREAD_STACKLENGTH] _at_ 0x30;
 * Liste der Thread Control Blocks
 */
 tcb_list_item_t xdata tcb_list[MAX_THREADS];
-
-/**
-* Not in list.
-*
-* Markiert das Ende einer Liste.
-*/
-#define NIL (0xFF)
 
 /**
 * Kopf der Ready-Liste
@@ -105,6 +99,18 @@ static void idle_thread(void)
 }
 
 /**
+* Initialisiert die TCB-Liste
+*/
+void os_initialize_tcb_list(void)
+{
+	uint8_t tcb_idx;
+	for (tcb_idx = 0; tcb_idx < MAX_THREADS; ++tcb_idx)
+	{
+		tcb_list[tcb_idx].next = NIL;
+	}
+}
+
+/**
 * Startet das Betriebssystem.
 *
 * @returns Diese Methode wird niemals verlassen.
@@ -126,14 +132,11 @@ void os_start(void)
 void os_init(void)
 {
 	threadno_t idle_thread_no;
-	uint8_t tcb_idx;
 	
 	assert(false == os_running);
 	
-	for (tcb_idx = 0; tcb_idx < MAX_THREADS; ++tcb_idx)
-	{
-		tcb_list[tcb_idx].next = NIL;
-	}
+	os_initialize_tcb_list();
+	os_initialize_semaphore_list();
 	
 	os_intialize_uart();
 	os_initialize_system_timer();

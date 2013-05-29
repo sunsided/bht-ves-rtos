@@ -11,4 +11,11 @@
 */
 #define TICK_DURATION_MS (10U)
 
+/**
+* Not in list.
+*
+* Markiert das Ende einer Liste.
+*/
+#define NIL (0xFF)
+
 #endif /* IMPL__SYSTEM_H */

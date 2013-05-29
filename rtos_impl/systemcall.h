@@ -3,6 +3,7 @@
 
 #include "syscall/syscall_register_thread.h"
 #include "syscall/syscall_sleep.h"
+#include "syscall/syscall_semaphore.h"
 
 /**
 * System call type.
@@ -13,6 +14,9 @@ typedef enum {
 	NO_SYSTEM_CALL = 0,				//< Kein system call (default-Wert)
 	REGISTER_THREAD = 1,			//< Thread-Registrierung wird angefordert
 	SLEEP = 2,								//< Sleep
+	SEMAPHOR_INIT = 3,				//< Initialisierung eines Semaphors
+	SEMAPHOR_POST = 4,				//< Post-Operation eines Semaphors
+	SEMAPHOR_WAIT = 5,				//< Wait-Operation eines Semaphors
 } system_call_type;
 
 /**
@@ -37,6 +41,16 @@ typedef struct {
 		* sleep - Schlafanforderung
 		*/
 		syscall_sleep_t sleep;
+		
+		/**
+		* semaphore_init - Initialisierung eines Semaphors
+		*/
+		syscall_init_semaphore_t semaphore_init;
+		
+		/**
+		* semaphore_modification - Veränderung eines Semaphors
+		*/
+		syscall_modify_semaphore_t semaphore_modification;
 	} call_data;
 } system_call_t;
 
@@ -54,6 +68,11 @@ typedef struct {
 		* register_thread - Registrierung eines Threads
 		*/
 		syscall_register_thread_result_t register_thread;
+		
+		/**
+		* semaphore - Ergebnis einer Semaphor-Operation
+		*/
+		syscall_semaphore_result_t semaphore;
 	} result_data;
 	
 } system_call_result_t;

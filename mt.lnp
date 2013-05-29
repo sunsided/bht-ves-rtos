@@ -5,6 +5,7 @@
 "timer.obj",
 "threads.obj",
 "systemcall.obj",
-"time.obj" 
+"time.obj",
+"semaphores.obj" 
 TO "mt" 
 RAMSIZE(256) 

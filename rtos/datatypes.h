@@ -7,9 +7,24 @@ typedef  signed short int 	 int16_t;		// 16-bit   signed
 typedef unsigned short int 	uint16_t;		// 16-bit unsigned
 typedef unsigned long int 	uint32_t;   // 32-bit unsigned
 
+/*
+* Typ für eine Schlafdauer.
+*/
 typedef int16_t sleep_t;
+
+/**
+* Typ für die eine Zeitangabe.
+*/
 typedef uint32_t systime_t;
 
+/**
+* Fehlercode
+*/
+typedef int8_t error_t;
+
+/**
+* Boolean
+*/
 typedef enum {
 	true = 1,
 	false = 0
