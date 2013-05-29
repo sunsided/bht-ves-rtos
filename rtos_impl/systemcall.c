@@ -27,6 +27,15 @@ system_call_t* os_begin_system_call(const system_call_type type)
 }
 
 /**
+* Bricht den system call ab.
+*/
+void os_cancel_execute_system_call()
+{
+	system_call.type = NO_SYSTEM_CALL;
+	os_allow_system_timer_int();
+}
+
+/**
 * Bezieht den aktuell laufenden system call.
 */
 system_call_t* kernel_get_system_call() using 1

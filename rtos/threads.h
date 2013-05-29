@@ -30,6 +30,7 @@ typedef enum {
 	PRIO_HIGHEST 					= 10,	 //< Höchste Priorität
 	PRIO_HIGH 						= 5,	 //< Hohe Priorität
 	PRIO_NORMAL  					= 0,	 //< Normale Priorität
+	PRIO_LOW 					    = -5,  //< Niedrige Priorität
 	PRIO_LOWEST 					= -10, //< Niedrigste Priorität
 	PRIO_RESERVED_IDLE 	  = -127 //< Niedrigste Priorität (reserviert für Idle-Thread)
 } thread_priority_t;

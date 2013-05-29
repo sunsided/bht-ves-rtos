@@ -53,11 +53,27 @@ typedef struct {
 
 /**
 * Initiiert einen system call.
+*
+* Diese Methode betritt implizit einen atomaren Bereich.
+*
+* @param type Der Typ des system calls
+* @returns Die system call-Struktur
 */
 system_call_t* os_begin_system_call(const system_call_type type);
 
 /**
+* Bricht den system call ab.
+*
+* Diese Methode verlässt den über os_begin_system_call() betretenen
+* atomaren Bereich.
+*/
+void os_cancel_execute_system_call();
+
+/**
 * Führt den system call aus.
+*
+* Diese Methode verlässt den über os_begin_system_call() betretenen
+* atomaren Bereich.
 */
 void os_execute_system_call();
 
@@ -73,11 +89,15 @@ void os_clear_system_call_result();
 
 /**
 * Bezieht den aktuell laufenden system call.
+*
+* @returns Der aktuelle system call.
 */
 system_call_t* kernel_get_system_call();
 
 /**
 * Bezieht das Ergebnis des system calls.
+*
+* @returns Das system call-Ergebnis des aktuellen Threads.
 */
 system_call_result_t* kernel_get_system_call_result();
 

@@ -46,14 +46,21 @@ uint8_t idata Stack[MAX_THREADS][MAX_THREAD_STACKLENGTH] _at_ 0x30;
 /**
 * Liste der Thread Control Blocks
 */
-tcb_list_item_t xdata tcb_list[MAX_THREADS];									//Thread Cntrl. Bl.
+tcb_list_item_t xdata tcb_list[MAX_THREADS];
 
 /**
 * Not in list.
 *
-* Markiert das Ende einer Liste
+* Markiert das Ende einer Liste.
 */
-#define NIL (255)
+#define NIL (0xFF)
+
+/**
+* Invalid
+*
+* Markiert einen ungültigen Zeiger.
+*/
+#define INV (0xFE)
 
 /**
 * Kopf der Ready-Liste
@@ -70,7 +77,7 @@ uint8_t thread_count = 0;
 /**
 * Index des aktuellen Threads
 */
-int8_t current_thread_id = 0;
+int8_t current_thread_id = INV;
 
 /**
 * Gibt an, ob das OS initialisiert wurde
@@ -113,8 +120,14 @@ void os_start(void)
 void os_init(void)
 {
 	threadno_t idle_thread_no;
+	uint8_t tcb_idx;
 	
 	assert(false == os_running);
+	
+	for (tcb_idx = 0; tcb_idx < MAX_THREADS; ++tcb_idx)
+	{
+		tcb_list[tcb_idx].next = INV;
+	}
 	
 	os_intialize_uart();
 	os_initialize_system_timer();
@@ -146,6 +159,78 @@ static void kernel_strncpy(unsigned char *dst, const unsigned char *src, uint8_t
 }
 
 /**
+* Fügt einen Thread zur ready-Liste hinzu.
+*
+* @param thread_id Die ID des einzusortierenden Threads.
+*/
+static void kernel_add_thread_to_ready_list(const uint8_t thread_id) using 1
+{
+	static uint8_t					token_id;
+	static tcb_list_item_t *token;
+	static tcb_list_item_t *prev;
+	static tcb_list_item_t *new_item;
+	
+	new_item = &tcb_list[thread_id];
+	
+	// Sonderfall: Es handelt sich um den ersten Thread
+	if (NIL == tcb_list_ready_head) 
+	{	
+		tcb_list_ready_head = thread_id;
+		new_item->next = NIL;
+	}
+	else // (NIL == tcb_list_ready_head) 
+	{
+		token_id = tcb_list_ready_head;
+		prev = NULL;
+		
+		while(NIL != token_id)
+		{
+			token = &tcb_list[token_id];
+			
+			// Wenn das neue item höherer Priorität als das bestehende item ist,
+			// soll der neue Eintrag vor dem bestehenden Eintrag einsortiert werden.
+			if (new_item->tcb.priority > token->tcb.priority)
+			{
+				new_item->next = token_id;
+				
+				// Wenn ein Vorgänger existiert, wird dessen next-Zeiger
+				// auf den neuen Thread gesetzt.
+				if (NULL != prev)
+				{
+					prev->next = thread_id;
+				}
+				else
+				{
+					// Da kein Vorgänger existiert, sind wir am Beginn der
+					// Liste und müssen somit den head-Zeiger auf uns stellen.
+					tcb_list_ready_head = thread_id;
+				}
+				break;
+			}
+			else // if (new_item->priority > token->priority)
+			{
+				// Existiert ein weiteres Element in der Liste,
+				// wird der Zeiger auf dieses gesetzt und die Operation wiederholt.
+				// Der prev-Zeiger wird auf das aktuelle token gesetzt.
+				if (NIL != token->next)
+				{
+					prev = token;
+					token_id = token->next;
+					continue;
+				}
+
+				// An dieser Stelle angekommen, ist die Priorität des neuen
+				// Threads geringer als die des idle-Threads, was einen
+				// Fehler darstellt.
+				assert(NULL);
+				break;
+			}
+		}
+		assert(NIL != token_id);
+	}
+}
+
+/**
 * Führt den system call REGISTER_THREAD aus.
 *
 * @param syscall Die system call-Instanz.
@@ -154,41 +239,59 @@ static void kernel_exec_syscall_register_thread(const system_call_t *syscall) us
 {
 	static syscall_register_thread_t *sc;
 	static syscall_register_thread_result_t *sr;
-	static threadno_t threadNumber;
+	static threadno_t thread_id;
 	static tcb_t *tcb;
 	static tcb_list_item_t *tcb_list_item;
 	
 	// system call und Ergebnis-Instanz beziehen
 	sc = (syscall_register_thread_t *)&syscall->call_data;
-	sr = &kernel_get_system_call_result()->result_data.register_thread;
 	
-	// Sicherstellen, dass noch nicht alle Threads vergeben sind
-	if (MAX_THREADS == thread_count)
-	{
-		threadNumber = THREAD_REGISTER_ERROR;
-	}
-	else
-	{	
-		threadNumber = (threadno_t)thread_count++; // NOTE: Logik nimmt an, dass niemals Threads entfernt werden.
-		
-		// Control Block-Listenitem beziehen und initialisieren
-		tcb_list_item = &tcb_list[threadNumber];
-		tcb_list_item->next = NIL;
-		
-		// Control Block beziehen und Werte setzen
-		tcb = &tcb_list_item->tcb;
-		tcb->priority = sc->priority;
-		kernel_strncpy(tcb->thread_data.name, sc->name, MAX_THREAD_NAME_LENGTH);
-		
-		// SP erstmals auf die nachfolgend abgelegte Rücksprungadresse + 5 byte für 5 PUSHes
-		tcb->sp  = (unsigned char)(&Stack[threadNumber][0] + 6);
+	// Sicherstellen, dass noch nicht alle Threads vergeben sind.
+	// Überprüfung wird bereits im user space ausgeführt.
+	assert (MAX_THREADS != thread_count);
+	
+	// Thread ID ermitteln und 
+	thread_id = (threadno_t)thread_count++; // NOTE: Logik nimmt an, dass niemals Threads entfernt werden.
+	
+	// Control Block-Listenitem beziehen und initialisieren
+	tcb_list_item = &tcb_list[thread_id];
+	tcb_list_item->next = INV;
+	
+	// Control Block beziehen und Werte setzen
+	tcb = &tcb_list_item->tcb;
+	tcb->priority = sc->priority;
+	kernel_strncpy(tcb->thread_data.name, sc->name, MAX_THREAD_NAME_LENGTH);
+	
+	// SP erstmals auf die nachfolgend abgelegte Rücksprungadresse + 5 byte für 5 PUSHes
+	tcb->sp  = (unsigned char)(&Stack[thread_id][0] + 6);
 
-		// Startadresse des registrierten Threads als Rücksprungadresse sichern
-		Stack[threadNumber][0] = LOW_BYTE_FROM_PTR(sc->function);
-		Stack[threadNumber][1] = HIGH_BYTE_FROM_PTR(sc->function);
-	}
+	// Startadresse des registrierten Threads als Rücksprungadresse sichern
+	Stack[thread_id][0] = LOW_BYTE_FROM_PTR(sc->function);
+	Stack[thread_id][1] = HIGH_BYTE_FROM_PTR(sc->function);
 	
-	sr->last_registered_thread = threadNumber;
+	// In ready-Liste einhängen
+	kernel_add_thread_to_ready_list(thread_id);
+
+	// Ergebnis des system calls speichern
+	sr = &kernel_get_system_call_result()->result_data.register_thread;
+	sr->last_registered_thread = thread_id;
+}
+
+/**
+* Scheduler
+*
+* Ermittelt den nächsten rechenwilligen Thread. 
+* @returns id des nächsten rechenwilligen Threads
+*/
+uint8_t kernel_schedule_next_thread() using 1
+{
+	// Der nächste rechenwillige Thread höchster Priorität
+	// befindet sich stets am Anfang der Liste.
+	uint8_t next_thread_id = tcb_list_ready_head;
+	
+	// NOTE: Zusätzliche Logik (z.B. Round Robin) ist notwenig, wenn 
+	// NOTE: mehrere Threads selber Priorität verwendet werden sollen.
+	return next_thread_id;
 }
 
 /*****************************************************************************
@@ -199,7 +302,11 @@ static void kernel_exec_syscall_register_thread(const system_call_t *syscall) us
 *****************************************************************************/
 timer0() interrupt 1 using 1						// Int Vector at 000BH, Reg Bank 1  
 {
-	static system_call_t *syscall;	// Zeiger auf den aktuell laufenden system call
+	// Zeiger auf den aktuell laufenden system call
+	static system_call_t *syscall;
+	
+	// Gibt an, ob es sich um den ersten context switch handelt
+	static bool is_first_context_switch = true;
 	
 	static uint8_t regIdx;			// Register-Index in der Schleife
 	static uint8_t idata *pi;				// Pointer in das interne RAM
@@ -233,50 +340,52 @@ timer0() interrupt 1 using 1						// Int Vector at 000BH, Reg Bank 1
 		kernel_clear_system_call();
 	}
 	else // if (is_system_call())
-	if (os_running)
+	if (os_running && thread_count > 0)
 	{
-		// Sind Threads zu verwalten?
-		if (thread_count > 0) 
-		{
+		// TODO: Liste der Rechenwilligen Threads durchlaufen
+		next_thread_id = kernel_schedule_next_thread();
 
-			next_thread_id = (current_thread_id + 1)%thread_count;	// Threadumschaltung
+		pi = (unsigned char idata *)SP;			// Kopie des Stackpointers
 
-			pi = (unsigned char idata *)SP;			// Kopie des Stackpointers
-
-			if (next_thread_id != current_thread_id) {		// Nur bei Threadwechsel müssen
-																// die Register gerettet werden!
-					 
-				if (next_thread_id == FIRST)					// Beim allerersten Aufruf von                
-					next_thread_id = 0;							// timer0 liegt der SP noch
-																// im ursprünglichen Bereich
-																// nach Systemstart. Er darf
-																// nicht gerettet werden! Der
-																// bei RegisterThread(...)
-																// initialisierte Wert wird
-																// verwendet!
-				else {
-					tcb_list[current_thread_id].tcb.sp  =  pi;			// Sichern des SP
-				}               
-
-				// Retten von R0-R7 aus der von allen Threads gemeinsam genutzten Registerbank 0
-				for(regIdx=0; regIdx<REGISTER_COUNT; ++regIdx)
-				{
-					tcb_list[current_thread_id].tcb.reg[regIdx]  = *(pd + regIdx);
-				}
-				
-				SP = tcb_list[next_thread_id].tcb.sp;						// geretteten SP des Threads
-				pi = (unsigned char idata *)SP;			// in Pointer pi laden
-				
-				// Wiederherstellen von R0-R7 in Registerbank 0
-				for(regIdx=0; regIdx<REGISTER_COUNT; ++regIdx)
-				{
-					*(pd + regIdx) = tcb_list[next_thread_id].tcb.reg[regIdx];
-				}
+		// Registertausch nur bei Threadwechsel
+		if (next_thread_id != current_thread_id) 
+		{						 
+			if (is_first_context_switch)
+			{	
+				// Beim allerersten Aufruf von timer0 liegt der SP noch
+				// im ursprünglichen Bereich nach Systemstart. Er darf
+				// nicht gerettet werden! Der bei register_thread(...)
+				// initialisierte Wert wird verwendet!
 			
-				current_thread_id = next_thread_id;					// Ab jetzt ist der neue Thread
-			}                                         // der aktuelle!
+				is_first_context_switch	 = false;
+				next_thread_id = 0;							
+			}
+			else 
+			{
+				// Stack pointer sichern
+				tcb_list[current_thread_id].tcb.sp  =  pi;
+			}               
+
+			// Retten von R0-R7 aus der von allen Threads gemeinsam genutzten Registerbank 0
+			for(regIdx=0; regIdx<REGISTER_COUNT; ++regIdx)
+			{
+				tcb_list[current_thread_id].tcb.reg[regIdx]  = *(pd + regIdx);
+			}
+			
+			// geretteten SP des Threads in Pointer pi laden
+			SP = tcb_list[next_thread_id].tcb.sp;						
+			pi = (unsigned char idata *)SP;
+			
+			// Wiederherstellen von R0-R7 in Registerbank 0
+			for(regIdx=0; regIdx<REGISTER_COUNT; ++regIdx)
+			{
+				*(pd + regIdx) = tcb_list[next_thread_id].tcb.reg[regIdx];
+			}
+		
+			// Threadwechsel vollzogen
+			current_thread_id = next_thread_id;
 		}
-	}	
+	}	// if (os_running)
 }
 
 

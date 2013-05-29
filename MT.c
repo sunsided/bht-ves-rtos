@@ -32,7 +32,7 @@ void thread0(void)
 {
 	static int i = 0;
 
-	while(1) {			// PROBLEM: nullter Thread wird nie betreten.
+	while(1) {
 		i++;    
 	}
 }
@@ -77,11 +77,11 @@ void thread3(void)
 void register_threads() {
 	threadno_t thread;
 		
-	thread = os_register_thread(thread0, PRIO_NORMAL, "Erster Thread");
+	thread = os_register_thread(thread0, PRIO_HIGHEST, "Erster Thread");
 	ASSERT_THREAD_REGISTERED(thread);
 	printf("thread0 registriert als ID %u.\r\n", (uint16_t)thread); // NOTE: Cast ist ein Fix für endianness
 	
-	thread = os_register_thread(thread1, PRIO_NORMAL, "Zweiter Thread");
+	thread = os_register_thread(thread1, PRIO_HIGH, "Zweiter Thread");
 	ASSERT_THREAD_REGISTERED(thread);
 	printf("thread1 registriert als ID %u.\r\n", (uint16_t)thread);
 	
@@ -89,7 +89,7 @@ void register_threads() {
 	ASSERT_THREAD_REGISTERED(thread);
 	printf("thread2 registriert als ID %u.\r\n", (uint16_t)thread);
 	
-	thread = os_register_thread(thread3, PRIO_NORMAL, "Vierter Thread");
+	thread = os_register_thread(thread3, PRIO_LOW, "Vierter Thread");
 	ASSERT_THREAD_REGISTERED(thread);
 	printf("thread3 registriert als ID %u.\r\n", (uint16_t)thread);
 }

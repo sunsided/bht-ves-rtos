@@ -67,6 +67,14 @@ threadno_t os_register_thread(const thread_function_t* thread, thread_priority_t
 	sc = os_begin_system_call(REGISTER_THREAD);
 	assert(REGISTER_THREAD == sc->type);
 	
+	// Wenn keine Threads mehr registrierbar,
+	// System call abbrechen (atomaren Bereich verlassen)
+	if (MAX_THREADS == thread_count)
+	{
+		os_cancel_execute_system_call();
+		return THREAD_REGISTER_ERROR;
+	}
+	
 	calldata = &sc->call_data.register_thread;
 	
 	calldata->name = threadname;
