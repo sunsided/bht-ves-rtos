@@ -4,11 +4,9 @@
 #include "timer.h"
 #include "threads.h"
 
-																	//Threadstacks 
-extern uint8_t idata Stack[MAX_THREADS][MAX_THREAD_STACKLENGTH]; 
-extern TCB 		 xdata tcb[MAX_THREADS];									//Thread Cntrl. Bl.
-extern uint8_t NrThreads;								//Anzahl registr.
-extern int8_t CurrentThread;	// Nr des laufenden Threads
+extern uint8_t NrThreads;
+extern int8_t CurrentThread;
+extern tcb_list_item_t xdata tcb_list[MAX_THREADS];
 
 /**
 * Liefert die Daten des aktuellen Threads
@@ -25,7 +23,7 @@ thread_data_t* get_current_thread_data()
 	}
 	else 
 	{
-		td = &tcb[CurrentThread].thread_data;
+		td = &tcb_list[CurrentThread].tcb.thread_data;
 	}
 	
 	allow_system_timer_int();

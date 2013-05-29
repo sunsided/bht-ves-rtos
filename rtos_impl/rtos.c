@@ -23,7 +23,7 @@
 
 																	//Threadstacks 
 uint8_t idata Stack[MAX_THREADS][MAX_THREAD_STACKLENGTH] _at_ 0x30;   
-TCB xdata tcb[MAX_THREADS];									//Thread Cntrl. Bl.
+tcb_list_item_t xdata tcb_list[MAX_THREADS];									//Thread Cntrl. Bl.
 uint8_t NrThreads = 0;								//Anzahl registr.
 int8_t CurrentThread = 0;	// Nr des laufenden Threads
 
@@ -120,7 +120,7 @@ static void exec_syscall_register_thread(const system_call_t *syscall) using 1
 		printf("* assigning thread id: %d.\r\n", (uint16_t)threadNumber);
 		
 		// SP erstmals auf die nachfolgend abgelegte Rücksprungadresse + 5 byte für 5 PUSHes
-		tcb[threadNumber].sp  = (unsigned char)(&Stack[threadNumber][0] + 6);
+		tcb_list[threadNumber].tcb.sp  = (unsigned char)(&Stack[threadNumber][0] + 6);
 
 		// Startadresse des registrierten Threads als Rücksprungadresse sichern
 		Stack[threadNumber][0] = LOW_BYTE_FROM_PTR(sc->function);
@@ -193,22 +193,22 @@ timer0() interrupt 1 using 1						// Int Vector at 000BH, Reg Bank 1
 																// initialisierte Wert wird
 																// verwendet!
 				else {
-					tcb[CurrentThread].sp  =  pi;			// Sichern des SP
+					tcb_list[CurrentThread].tcb.sp  =  pi;			// Sichern des SP
 				}               
 
 				// Retten von R0-R7 aus der von allen Threads gemeinsam genutzten Registerbank 0
 				for(regIdx=0; regIdx<REGISTER_COUNT; ++regIdx)
 				{
-					tcb[CurrentThread].reg[regIdx]  = *(pd + regIdx);
+					tcb_list[CurrentThread].tcb.reg[regIdx]  = *(pd + regIdx);
 				}
 				
-				SP = tcb[NewThread].sp;						// geretteten SP des Threads
+				SP = tcb_list[NewThread].tcb.sp;						// geretteten SP des Threads
 				pi = (unsigned char idata *)SP;			// in Pointer pi laden
 				
 				// Wiederherstellen von R0-R7 in Registerbank 0
 				for(regIdx=0; regIdx<REGISTER_COUNT; ++regIdx)
 				{
-					*(pd + regIdx) = tcb[NewThread].reg[regIdx];
+					*(pd + regIdx) = tcb_list[NewThread].tcb.reg[regIdx];
 				}
 			
 				CurrentThread = NewThread;					// Ab jetzt ist der neue Thread

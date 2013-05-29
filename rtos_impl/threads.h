@@ -39,7 +39,24 @@ typedef struct {
 	* Daten des aktuellen Threads
 	*/
 	thread_data_t thread_data;
-} TCB;
+} tcb_t;
+
+
+/**
+* Verkettete Liste der TCBs.
+*/
+typedef struct {
+	/**
+	* Der TCB
+	*/
+	tcb_t 	tcb;
+	
+	/**
+	* Index des nächsten Listeneintrags
+	*/
+	uint8_t next;	
+} tcb_list_item_t;
+
 
 /**
 * Liefert die Daten des aktuellen Threads
