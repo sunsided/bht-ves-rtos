@@ -138,6 +138,9 @@ void os_init(void)
 	os_initialized = true;
 }
 
+/**
+* strncpy-Implementierung im kernel space.
+*/
 static void kernel_strncpy(unsigned char *dst, const unsigned char *src, uint8_t length) using 1
 {
 	static uint8_t index;
@@ -166,6 +169,8 @@ static void kernel_strncpy(unsigned char *dst, const unsigned char *src, uint8_t
 static void kernel_add_thread_to_ready_list(const uint8_t thread_id) using 1
 {
 	static uint8_t					token_id;
+	
+	// Zeiger extrahieren, um array-lookups zu reduzieren
 	static tcb_list_item_t *token;
 	static tcb_list_item_t *prev;
 	static tcb_list_item_t *new_item;
@@ -298,7 +303,7 @@ uint8_t kernel_schedule_next_thread() using 1
 	if (current_thread_id != INV && current_priority == head_priority)
 	{
 		next_thread_id = tcb_list[current_thread_id].next;
-		if (current_priority == tcb_list[next_thread_id].tcb.priority) 
+		if (current_priority == tcb_list[tcb_list[current_thread_id].next].tcb.priority) 
 		{
 			return next_thread_id;
 		}
