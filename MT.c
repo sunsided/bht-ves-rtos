@@ -44,6 +44,8 @@ void thread1(void)
 	while(1) {
 		i++;
 		printf("T1 i = %d\n", i);
+		
+		os_sleep(1000);
 	}
 }
 

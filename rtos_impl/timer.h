@@ -1,8 +1,6 @@
 #ifndef IMPL__TIMER_H
 #define IMPL__TIMER_H
 
-#include <reg51.h>
-
 /**
 * Initialisiert den Systemtimer.
 *

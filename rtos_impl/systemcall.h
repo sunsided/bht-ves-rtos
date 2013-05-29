@@ -2,6 +2,7 @@
 #define IMPL__SYSTEMCALL_H
 
 #include "syscall/syscall_register_thread.h"
+#include "syscall/syscall_sleep.h"
 
 /**
 * System call type.
@@ -11,6 +12,7 @@
 typedef enum {
 	NO_SYSTEM_CALL = 0,				//< Kein system call (default-Wert)
 	REGISTER_THREAD = 1,			//< Thread-Registrierung wird angefordert
+	SLEEP = 2,								//< Sleep
 } system_call_type;
 
 /**
@@ -30,6 +32,11 @@ typedef struct {
 		* register_thread - Registrierung eines Threads
 		*/
 		syscall_register_thread_t register_thread;
+		
+		/**
+		* sleep - Schlafanforderung
+		*/
+		syscall_sleep_t sleep;
 	} call_data;
 } system_call_t;
 

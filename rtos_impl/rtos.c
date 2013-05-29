@@ -173,7 +173,7 @@ static void kernel_strncpy(unsigned char *dst, const unsigned char *src, const u
 *
 * @param thread_id Die ID des einzusortierenden Threads.
 */
-static void kernel_add_thread_to_ready_list(const uint8_t thread_id) using 1
+static void kernel_add_to_ready_list(const uint8_t thread_id) using 1
 {
 	static uint8_t					token_id;
 	
@@ -299,7 +299,7 @@ static void kernel_remove_from_ready_list(const uint8_t thread_id) using 1
 *
 * @param thread_id Die ID des einzusortierenden Threads.
 */
-static void kernel_add_thread_to_sleep_list(const uint8_t thread_id) using 1
+static void kernel_add_to_sleep_list(const uint8_t thread_id) using 1
 {
 	static sleep_t thread_sleep_time;
 	static sleep_t integrated_sleep_time;
@@ -397,11 +397,37 @@ static void kernel_exec_syscall_register_thread(const system_call_t *syscall) us
 	Stack[thread_id][1] = HIGH_BYTE_FROM_PTR(sc->function);
 	
 	// In ready-Liste einhängen
-	kernel_add_thread_to_ready_list(thread_id);
+	kernel_add_to_ready_list(thread_id);
 
 	// Ergebnis des system calls speichern
 	sr = &kernel_get_system_call_result()->result_data.register_thread;
 	sr->last_registered_thread = thread_id;
+}
+
+/**
+* Führt den system call SLEEP aus.
+*
+* @param syscall Die system call-Instanz.
+*/
+static void kernel_exec_syscall_sleep(const system_call_t *syscall) using 1
+{
+	static syscall_sleep_t *sc;
+	static tcb_t *tcb;
+	static tcb_list_item_t *tcb_list_item;
+	
+	// system call und Ergebnis-Instanz beziehen
+	sc = (syscall_sleep_t *)&syscall->call_data;
+		
+	// Control Block-Listenitem beziehen und initialisieren
+	tcb_list_item = &tcb_list[current_thread_id];
+	
+	// Control Block beziehen und Werte setzen
+	tcb = &tcb_list_item->tcb;
+	tcb->sleep_duration = sc->sleep_duration;
+		
+	// Aus ready-Liste entfernen
+	kernel_remove_from_ready_list(current_thread_id);
+	kernel_add_to_sleep_list(current_thread_id);
 }
 
 /**
@@ -470,6 +496,11 @@ timer0() interrupt 1 using 1						// Int Vector at 000BH, Reg Bank 1
 			case REGISTER_THREAD:
 			{
 				kernel_exec_syscall_register_thread(syscall);
+				break;
+			}
+			case SLEEP:
+			{
+				kernel_exec_syscall_sleep(syscall);
 				break;
 			}
 			default:

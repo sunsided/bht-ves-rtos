@@ -4,6 +4,7 @@
 "v24.obj",
 "timer.obj",
 "threads.obj",
-"systemcall.obj" 
+"systemcall.obj",
+"sleep.obj" 
 TO "mt" 
 RAMSIZE(256) 
