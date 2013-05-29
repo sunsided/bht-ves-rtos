@@ -286,12 +286,26 @@ static void kernel_exec_syscall_register_thread(const system_call_t *syscall) us
 uint8_t kernel_schedule_next_thread() using 1
 {
 	// Der nächste rechenwillige Thread höchster Priorität
-	// befindet sich stets am Anfang der Liste.
-	uint8_t next_thread_id = tcb_list_ready_head;
+	// befindet sich prinzipiell stets am Anfang der Liste.
 	
-	// NOTE: Zusätzliche Logik (z.B. Round Robin) ist notwenig, wenn 
-	// NOTE: mehrere Threads selber Priorität verwendet werden sollen.
-	return next_thread_id;
+	const int8_t current_priority 	= tcb_list[current_thread_id].tcb.priority;
+	const int8_t head_priority 		= tcb_list[tcb_list_ready_head].tcb.priority;
+	uint8_t next_thread_id;
+	
+	// Wenn die Priorität des aktuellen Threads übereinstimmend mit
+	// der Priorität am Listenkopf ist und ein nachfolgendes Element
+	// mit selber Priorität existiert, soll dieses verwendet werden.
+	if (current_thread_id != INV && current_priority == head_priority)
+	{
+		next_thread_id = tcb_list[current_thread_id].next;
+		if (current_priority == tcb_list[next_thread_id].tcb.priority) 
+		{
+			return next_thread_id;
+		}
+	}
+	
+	// Da kein fairer Nachfolger gefunden wurde, Kopf der Liste wählen.
+	return tcb_list_ready_head;
 }
 
 /*****************************************************************************
