@@ -1,7 +1,7 @@
 #ifndef IMPL__SYSCALL_REGISTER_THREAD_H
 #define IMPL__SYSCALL_REGISTER_THREAD_H
 
-#include "../rtos/threads.h"
+#include "../../rtos/threads.h"
 
 /**
 * syscall_register_thread_t - Registrierung eines Threads
