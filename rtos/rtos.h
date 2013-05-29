@@ -4,6 +4,7 @@
 #include "datatypes.h"
 #include "threads.h"
 #include "time.h"
+#include "semaphores.h"
 
 /**
 * Initialisiert das Betriebssystem.

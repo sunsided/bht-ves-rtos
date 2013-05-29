@@ -27,6 +27,11 @@
 #include <assert.h>
 #include "rtos/rtos.h"
 
+/**
+* Test-Semaphor.
+*/
+static semaphore_t test_semaphore;
+
 // Alle Threads laufen in Registerbank 0
 void thread0(void)
 {
@@ -102,9 +107,28 @@ void register_threads() {
 	printf("thread3 registriert als ID %u.\r\n", (uint16_t)thread);
 }
 
+/**
+* Sichert über eine Assertion, dass der Thread registriert wurde.
+*/
+#define ASSERT_SEMAPHORE_INITIALIZED(sem_result, sem) \
+	assert(SEM_SUCCESS == (sem_result)); \
+	assert(0xFF > (sem.semaphore_id)); \
+
+/**
+* Initialisiert die Semaphore
+*/
+void initialize_semaphores() {
+	sem_error_t result;
+		
+	result = os_semaphore_init(&test_semaphore, 10);
+	ASSERT_SEMAPHORE_INITIALIZED(result, test_semaphore);
+	printf("Test-Semaphor initialisiert als ID %u.\r\n", (uint16_t)test_semaphore.semaphore_id);
+}
+
 void main(void) {
 	os_init();
 	register_threads();
+	initialize_semaphores();
 	
 	// Starten des Multithreading
 	// Diese Funktion terminiert nie!
