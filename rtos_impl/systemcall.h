@@ -14,9 +14,9 @@ typedef enum {
 	NO_SYSTEM_CALL = 0,				//< Kein system call (default-Wert)
 	REGISTER_THREAD = 1,			//< Thread-Registrierung wird angefordert
 	SLEEP = 2,								//< Sleep
-	SEMAPHOR_INIT = 3,				//< Initialisierung eines Semaphors
-	SEMAPHOR_POST = 4,				//< Post-Operation eines Semaphors
-	SEMAPHOR_WAIT = 5,				//< Wait-Operation eines Semaphors
+	SEMAPHORE_INIT = 3,				//< Initialisierung eines Semaphors
+	SEMAPHORE_POST = 4,				//< Post-Operation eines Semaphors
+	SEMAPHORE_WAIT = 5,				//< Wait-Operation eines Semaphors
 } system_call_type;
 
 /**

@@ -543,6 +543,9 @@ timer0() interrupt 1 using 1						// Int Vector at 000BH, Reg Bank 1
 	// Gibt an, ob es sich um einen system call handelte
 	static bool is_system_call;
 	
+	// Gibt an, ob ein context switch ausgeführt werden soll
+	static bool switch_context;
+	
 	static uint8_t regIdx;			// Register-Index in der Schleife
 	static uint8_t idata *pi;				// Pointer in das interne RAM
 	static uint8_t idata *pd = POSRB0;	// Pointer auf die Registerbank 0
@@ -556,6 +559,13 @@ timer0() interrupt 1 using 1						// Int Vector at 000BH, Reg Bank 1
 		
 	// Verarbeitung der system calls beginnen
 	is_system_call = kernel_is_system_call();
+	
+	// Bei system calls davon ausgehen, dass prinzipiell
+	// kein context switch erforderlich ist.
+	// Impliziert, dass bei regulären Aufrufen ein switch
+	// durchgefürt wird.
+	switch_context = !is_system_call;
+	
 	if (is_system_call)
 	{
 		// system call beziehen und auswerten
@@ -565,11 +575,46 @@ timer0() interrupt 1 using 1						// Int Vector at 000BH, Reg Bank 1
 			case REGISTER_THREAD:
 			{
 				kernel_exec_syscall_register_thread(syscall);
+				
+				// Registrierungs eines Threads bewirkt
+				// keinen Threadwechsel.
+				switch_context = false;
 				break;
 			}
 			case SLEEP:
 			{
 				kernel_exec_syscall_sleep(syscall);
+				
+				// os_sleep() blockiert den aktuellen Thread,
+				// weswegen ein Threadwechsel stattfindet.
+				switch_context = true;
+				break;
+			}
+			case SEMAPHORE_INIT:
+			{
+				kernel_exec_syscall_sem_init(syscall);
+				
+				// Initialisierung eines Semaphors bewirkt
+				// keinen Threadwechsel.
+				switch_context = false;
+				break;
+			}
+			case SEMAPHORE_WAIT:
+			{
+				kernel_exec_syscall_sem_wait(syscall);
+				
+				// wait im system call tritt auf, wenn Semaphor
+				// blockiert, daher Threadwechsel durchführen.
+				switch_context = true;
+				break;
+			}
+			case SEMAPHORE_POST:
+			{
+				kernel_exec_syscall_sem_post(syscall);
+				
+				// post im system call tritt auf, wenn Semaphor
+				// Threads aufwecken kann, daher Threadwechsel durchführen.
+				switch_context = true;
 				break;
 			}
 			default:

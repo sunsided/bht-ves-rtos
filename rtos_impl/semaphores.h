@@ -30,4 +30,25 @@ typedef struct
 */
 void os_initialize_semaphore_list(void);
 
+/**
+* Führt den system call SEMAPHORE_INIT aus.
+*
+* @param syscall Die system call-Instanz.
+*/
+void kernel_exec_syscall_sem_init(const system_call_t *syscall);
+
+/**
+* Führt den system call SEMAPHORE_WAIT aus.
+*
+* @param syscall Die system call-Instanz.
+*/
+void kernel_exec_syscall_sem_wait(const system_call_t *syscall);
+
+/**
+* Führt den system call SEMAPHORE_POST aus.
+*
+* @param syscall Die system call-Instanz.
+*/
+void kernel_exec_syscall_sem_post(const system_call_t *syscall);
+
 #endif /* IMPL__SEMAPHORES_H */

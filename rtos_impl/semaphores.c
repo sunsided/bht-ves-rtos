@@ -44,8 +44,8 @@ sem_error_t os_semaphore_init(semaphore_t* semaphore, const sem_size_t sem_size)
 	
 	if (0 == semaphore) return SEM_INVALID_SEMAPHORE;
 	
-	sc = os_begin_system_call(SEMAPHOR_INIT);
-	assert(SEMAPHOR_INIT == sc->type);
+	sc = os_begin_system_call(SEMAPHORE_INIT);
+	assert(SEMAPHORE_INIT == sc->type);
 	
 	// Wenn keine Semaphore mehr registrierbar sind,
 	// System call abbrechen (atomaren Bereich verlassen)
@@ -85,8 +85,8 @@ sem_error_t os_semaphore_post(const semaphore_t* semaphore)
 	id = semaphore->semaphore_id;
 	
 	// System call initiieren
-	sc = os_begin_system_call(SEMAPHOR_POST);
-	assert(SEMAPHOR_POST == sc->type);
+	sc = os_begin_system_call(SEMAPHORE_POST);
+	assert(SEMAPHORE_POST == sc->type);
 	
 	// Wenn keine Semaphore registriert sind, stimmt
 	// etwas richtig nicht.
@@ -109,6 +109,14 @@ sem_error_t os_semaphore_post(const semaphore_t* semaphore)
 		return SEM_SUCCESS;
 	}
 
+	// Wenn kein Thread aufgeweckt werden muss,
+	// system call abbrechen.
+	if (NIL == semaphore_list[id].next)
+	{
+		os_cancel_execute_system_call();
+		return SEM_SUCCESS;
+	}
+	
 	// Affentest
 	assert(NIL == semaphore_list[id].next);
 	
@@ -142,8 +150,8 @@ sem_error_t os_semaphore_wait(const semaphore_t* semaphore)
 	id = semaphore->semaphore_id;
 	
 	// System call initiieren
-	sc = os_begin_system_call(SEMAPHOR_WAIT);
-	assert(SEMAPHOR_WAIT == sc->type);
+	sc = os_begin_system_call(SEMAPHORE_WAIT);
+	assert(SEMAPHORE_WAIT == sc->type);
 	
 	// Wenn keine Semaphore registriert sind, stimmt
 	// etwas richtig nicht.
@@ -181,4 +189,31 @@ sem_error_t os_semaphore_wait(const semaphore_t* semaphore)
 	os_clear_system_call_result();
 	
 	return SEM_SUCCESS;
+}
+
+/**
+* Führt den system call SEMAPHORE_INIT aus.
+*
+* @param syscall Die system call-Instanz.
+*/
+void kernel_exec_syscall_sem_init(const system_call_t *syscall) using 1
+{
+}
+
+/**
+* Führt den system call SEMAPHORE_WAIT aus.
+*
+* @param syscall Die system call-Instanz.
+*/
+void kernel_exec_syscall_sem_wait(const system_call_t *syscall) using 1
+{
+}
+
+/**
+* Führt den system call SEMAPHORE_POST aus.
+*
+* @param syscall Die system call-Instanz.
+*/
+void kernel_exec_syscall_sem_post(const system_call_t *syscall) using 1
+{
 }
