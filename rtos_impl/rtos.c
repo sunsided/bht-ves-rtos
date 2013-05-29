@@ -8,6 +8,7 @@
 #include <reg51.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <assert.h>
 
 #include "v24.h"
@@ -120,6 +121,7 @@ static void exec_syscall_register_thread(const system_call_t *syscall) using 1
 	static syscall_register_thread_t *sc;
 	static syscall_register_thread_result_t *sr;
 	static threadno_t threadNumber;
+	static tcb_t *tcb;
 	
 	// system call und Ergebnis-Instanz beziehen
 	sc = (syscall_register_thread_t *)&syscall->call_data;
@@ -138,8 +140,13 @@ static void exec_syscall_register_thread(const system_call_t *syscall) using 1
 		threadNumber = (threadno_t)NrThreads++; // NOTE: Logik nimmt an, dass niemals Threads entfernt werden.
 		printf("* assigning thread id: %d.\r\n", (uint16_t)threadNumber);
 		
+		// Control Block beziehen und Priorität setzen
+		tcb = &tcb_list[threadNumber].tcb;
+		tcb->priority = sc->priority;
+		strncpy(tcb->thread_data.name, sc->name, MAX_THREAD_NAME_LENGTH);
+		
 		// SP erstmals auf die nachfolgend abgelegte Rücksprungadresse + 5 byte für 5 PUSHes
-		tcb_list[threadNumber].tcb.sp  = (unsigned char)(&Stack[threadNumber][0] + 6);
+		tcb->sp  = (unsigned char)(&Stack[threadNumber][0] + 6);
 
 		// Startadresse des registrierten Threads als Rücksprungadresse sichern
 		Stack[threadNumber][0] = LOW_BYTE_FROM_PTR(sc->function);

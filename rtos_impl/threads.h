@@ -15,6 +15,11 @@
 */
 typedef struct {
 	/**
+	* Name des Threads
+	*/
+	unsigned char name[MAX_THREAD_NAME_LENGTH+1];
+	
+	/**
 	* Ergebnis des letzten system calls
 	*/
 	system_call_result_t syscall_result;
@@ -39,6 +44,11 @@ typedef struct {
 	* Daten des aktuellen Threads
 	*/
 	thread_data_t thread_data;
+	
+	/**
+	* Die Priorität des Threads.
+	*/
+	thread_priority_t priority;
 } tcb_t;
 
 
