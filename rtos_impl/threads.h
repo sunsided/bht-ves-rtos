@@ -53,7 +53,7 @@ typedef struct {
 	/**
 	* Dauer eines Sleep-Vorganges.
 	*/
-	int16_t sleep_duration;
+	sleep_t sleep_duration;
 } tcb_t;
 
 

@@ -70,6 +70,13 @@ tcb_list_item_t xdata tcb_list[MAX_THREADS];
 static uint8_t tcb_list_ready_head = NIL;
 
 /**
+* Kopf der Sleep-Liste
+*
+* Kopf der Liste der schlafenden Threads.
+*/
+static uint8_t tcb_list_sleep_head = NIL;
+
+/**
 * Anzahl der registrierten Threads
 */
 uint8_t thread_count = 0;
@@ -141,7 +148,7 @@ void os_init(void)
 /**
 * strncpy-Implementierung im kernel space.
 */
-static void kernel_strncpy(unsigned char *dst, const unsigned char *src, uint8_t length) using 1
+static void kernel_strncpy(unsigned char *dst, const unsigned char *src, const uint8_t length) using 1
 {
 	static uint8_t index;
 	assert(NULL != dst);
@@ -272,6 +279,79 @@ static void kernel_remove_from_ready_list(const uint8_t thread_id) using 1
 		}
 		
 		// Token aufd den Nachfolger setzen
+		token_id = tcb_list[token_id].next;
+	}
+}
+
+/**
+* Fügt einen Thread zur sleep-Liste hinzu.
+*
+* Es wird davon ausgegangen, dass die Schlafzeit bereits im TCB hinterlegt ist.
+* Die Zeit des ersten Elementes der sleep list ist absolut gespeichert, alle
+* weiteren Einträge speichern die Differenz zum Vorgängerwert, so dass die Summe
+* des Eintrags und aller Vorgänger gleich der gewünschten Schlafzeit ist.
+*
+* Beispiel:
+* Die Schalfzeiten 7s, 5s und 10s sollen hinterlegt werden. Die Liste enthält
+* folglich die Einträge: 5s -> 2s -> 3s (5+2=7, 5+2+3=10)
+*
+* Ein Eintrag auf der sleep list kann nicht gleichzeitig Teil der ready list sein.
+*
+* @param thread_id Die ID des einzusortierenden Threads.
+*/
+static void kernel_add_thread_to_sleep_list(const uint8_t thread_id) using 1
+{
+	static sleep_t thread_sleep_time;
+	static sleep_t integrated_sleep_time;
+	static uint8_t token_id;
+	static uint8_t prev_id;
+	
+	// Wenn noch keine Einträge existieren, kann der Wert 
+	// direkt übernommen (d.h. beibehalten) werden.
+	// Der Kopf der Liste wird auf den thread gesetzt.
+	if (NIL == tcb_list_sleep_head)
+	{
+		tcb_list_sleep_head = thread_id;
+		tcb_list[thread_id].next = NIL;
+		return;
+	}
+	
+	// Da die Liste bereits Einträge beinhaltet, muss
+	// der korrekte Einfügepunkt ermittelt werden, wozu
+	// die Schlafzeiten integriert werden.
+	token_id = tcb_list_sleep_head;
+	prev_id = NIL;
+	
+	integrated_sleep_time = tcb_list[token_id].tcb.sleep_duration;
+	thread_sleep_time = tcb_list[thread_id].tcb.sleep_duration;
+	
+	while (1)
+	{
+		// Ist die (reduzierte) Schlafzeit des Threads geringer als die
+		// integrierte Schlafzeit, wird der Thread vor dem aktuellen Element
+		// eingereiht und die nachfolgenden Werte reduziert.
+		if (NIL == token_id || thread_sleep_time < integrated_sleep_time) 
+		{
+			tcb_list[thread_id].next = token_id;
+			tcb_list[thread_id].tcb.sleep_duration = thread_sleep_time;
+			
+			// Wenn ein Vorgängerelement existiert, dieses anpassen
+			if (NIL != prev_id) 
+			{
+				tcb_list[prev_id].next = thread_id;
+			}
+			else
+			{
+				// Da kein Vorgänger existiert, muss der Listenkopf gesetzt werden.
+				tcb_list_sleep_head = thread_id;
+			}
+			
+			return;
+		}
+		
+		// Die Schlafzeit des Threads ist größer als die integrierte
+		// Schlafzeit, daher Thread-Zeit verringern und nächstes Element anwählen.
+		thread_sleep_time -= tcb_list[token_id].tcb.sleep_duration;
 		token_id = tcb_list[token_id].next;
 	}
 }
