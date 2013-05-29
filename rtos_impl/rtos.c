@@ -6,7 +6,6 @@
  
 
 #include <reg51.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
@@ -49,6 +48,20 @@ uint8_t idata Stack[MAX_THREADS][MAX_THREAD_STACKLENGTH] _at_ 0x30;
 tcb_list_item_t xdata tcb_list[MAX_THREADS];									//Thread Cntrl. Bl.
 
 /**
+* Not in list.
+*
+* Markiert das Ende einer Liste
+*/
+#define NIL (255)
+
+/**
+* Kopf der Ready-Liste
+*
+* Kopf der Liste der rechenwilligen Threads.
+*/
+static uint8_t tcb_list_ready_head = NIL;
+
+/**
 * Anzahl der registrierten Threads
 */
 uint8_t NrThreads = 0;
@@ -82,12 +95,12 @@ static void idle_thread(void)
 *
 * @returns Diese Methode wird niemals verlassen.
 */
-void start_os(void)
+void os_start(void)
 {
 	assert(true  == os_initialized);
 	assert(false == os_running);
 
-	start_system_timer();
+	os_start_system_timer();
 	
 	os_running = true;
 	while (ALWAYS);
@@ -96,19 +109,39 @@ void start_os(void)
 /**
 * Initialisiert das Betriebssystem.
 */
-void init_os(void)
+void os_init(void)
 {
 	threadno_t idle_thread_no;
 	
 	assert(false == os_running);
 	
-	intialize_uart();
-	initialize_system_timer();
+	os_intialize_uart();
+	os_initialize_system_timer();
 	
-	idle_thread_no = register_thread(idle_thread, PRIO_RESERVED_IDLE, "Idle Thread");
+	idle_thread_no = os_register_thread(idle_thread, PRIO_RESERVED_IDLE, "Idle Thread");
 	assert(0 == idle_thread_no);
-	
+
 	os_initialized = true;
+}
+
+static void kernel_strncpy(unsigned char *dst, const unsigned char *src, uint8_t length) using 1
+{
+	static uint8_t index;
+	assert(NULL != dst);
+	assert(NULL != src);
+	
+	index = 0;
+	while (0 != src[index])
+	{
+		dst[index] = src[index];
+		++index;
+	};
+	
+	while (index < length) 
+	{
+		dst[index] = 0;
+		++index;
+	}
 }
 
 /**
@@ -125,25 +158,21 @@ static void exec_syscall_register_thread(const system_call_t *syscall) using 1
 	
 	// system call und Ergebnis-Instanz beziehen
 	sc = (syscall_register_thread_t *)&syscall->call_data;
-	sr = &get_system_call_result()->result_data.register_thread;
-	
-	printf("* registering thread \"%s\" with priority %d ...\r\n", sc->name, (uint16_t)sc->priority);
+	sr = &kernel_get_system_call_result()->result_data.register_thread;
 	
 	// Sicherstellen, dass noch nicht alle Threads vergeben sind
 	if (MAX_THREADS == NrThreads)
 	{
-		printf("* error registering thread: no more threads allowed.\r\n");
 		threadNumber = THREAD_REGISTER_ERROR;
 	}
 	else
 	{
 		threadNumber = (threadno_t)NrThreads++; // NOTE: Logik nimmt an, dass niemals Threads entfernt werden.
-		printf("* assigning thread id: %d.\r\n", (uint16_t)threadNumber);
 		
 		// Control Block beziehen und Priorität setzen
 		tcb = &tcb_list[threadNumber].tcb;
 		tcb->priority = sc->priority;
-		strncpy(tcb->thread_data.name, sc->name, MAX_THREAD_NAME_LENGTH);
+		kernel_strncpy(tcb->thread_data.name, sc->name, MAX_THREAD_NAME_LENGTH);
 		
 		// SP erstmals auf die nachfolgend abgelegte Rücksprungadresse + 5 byte für 5 PUSHes
 		tcb->sp  = (unsigned char)(&Stack[threadNumber][0] + 6);
@@ -175,13 +204,13 @@ timer0() interrupt 1 using 1						// Int Vector at 000BH, Reg Bank 1
 															// Wert gesetzt (Grund: s. 
 															// "if (NewThread == FIRST)").
 
-	reload_system_timer();
+	kernel_reload_system_timer();
 		
 	// Verarbeitung der system calls beginnen
-	if (is_system_call())
+	if (kernel_is_system_call())
 	{
 		// system call beziehen und auswerten
-		syscall = get_system_call();
+		syscall = kernel_get_system_call();
 		switch (syscall->type)
 		{
 			case REGISTER_THREAD:
@@ -194,7 +223,7 @@ timer0() interrupt 1 using 1						// Int Vector at 000BH, Reg Bank 1
 		}
 		
 		// system call zurücksetzen
-		clear_system_call();
+		kernel_clear_system_call();
 	}
 	else // if (is_system_call())
 	if (os_running)

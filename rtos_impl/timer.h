@@ -9,7 +9,7 @@
 * Initialisiert den Systemtimer, der für das Scheduling und die
 * System-Calls verwendet wird.
 */
-void initialize_system_timer(void);
+void os_initialize_system_timer(void);
 
 /**
 * Startet den Systemtimer.
@@ -17,12 +17,12 @@ void initialize_system_timer(void);
 * Startet den Systemtimer, der für das Scheduling und die
 * System-Calls verwendet wird.
 */
-void start_system_timer(void);
+void os_start_system_timer(void);
 
 /**
 * Lädt den Systemtimer neu.
 */
-void reload_system_timer(void);
+void kernel_reload_system_timer(void);
 
 /**
 * Deaktiviert den Systemtimer-Interrupt.
@@ -30,7 +30,7 @@ void reload_system_timer(void);
 * Erlaubt die atomare Ausführung von Anweisungen,
 * bis der Timer erneut aktiviert wird.
 */
-void suppress_system_timer_int();
+void os_suppress_system_timer_int();
 
 /**
 * Aktiviert den Systemtimer-Interrupt.
@@ -38,7 +38,7 @@ void suppress_system_timer_int();
 * Aktiviert den Systemtimer und beendet damit einen
 * atomaren Block.
 */
-void allow_system_timer_int();
+void os_allow_system_timer_int();
 
 /**
 * Erzwingt einen Overflow des Systemtimers.
@@ -47,6 +47,6 @@ void allow_system_timer_int();
 * wodurch nach Aktivieren des Timers der Interrupt-Handler
 * betreten wird.
 */
-void trigger_system_timer_overflow();
+void os_trigger_system_timer_overflow();
 
 #endif /* IMPL__TIMER_H */

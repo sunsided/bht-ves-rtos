@@ -20,7 +20,7 @@ typedef struct {
 	/**
 	* Name des Threads
 	*/
-	unsigned char name[MAX_THREAD_NAME_LENGTH+1];
+	unsigned char *name;
 	
 } syscall_register_thread_t;
 

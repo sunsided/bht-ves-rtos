@@ -53,7 +53,7 @@ typedef struct {
 
 
 /**
-* Verkettete Liste der TCBs.
+* Eintrag der verketteten Liste der TCBs.
 */
 typedef struct {
 	/**
@@ -67,10 +67,14 @@ typedef struct {
 	uint8_t next;	
 } tcb_list_item_t;
 
+/**
+* Liefert die Daten des aktuellen Threads
+*/
+thread_data_t* os_get_current_thread_data();
 
 /**
 * Liefert die Daten des aktuellen Threads
 */
-thread_data_t* get_current_thread_data();
+thread_data_t* kernel_get_current_thread_data();
 
 #endif /* IMPL__THREADS_H */

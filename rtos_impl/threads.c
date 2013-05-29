@@ -11,11 +11,13 @@ extern tcb_list_item_t xdata tcb_list[MAX_THREADS];
 /**
 * Liefert die Daten des aktuellen Threads
 */
-thread_data_t* get_current_thread_data()
+thread_data_t* os_get_current_thread_data()
 {
 	static thread_data_t* td;
 	
-	suppress_system_timer_int();
+	// Atomare Ausführung beginnen, um Veränderung des
+	// CurrentThread-Wertes zu verhindern
+	os_suppress_system_timer_int();
 	
 	if (0 == NrThreads)
 	{
@@ -26,7 +28,26 @@ thread_data_t* get_current_thread_data()
 		td = &tcb_list[CurrentThread].tcb.thread_data;
 	}
 	
-	allow_system_timer_int();
+	os_allow_system_timer_int();
+	
+	return td;
+}
+
+/**
+* Liefert die Daten des aktuellen Threads
+*/
+thread_data_t* kernel_get_current_thread_data() using 1
+{
+	static thread_data_t* td;
+		
+	if (0 == NrThreads)
+	{
+		td = NULL;
+	}
+	else 
+	{
+		td = &tcb_list[CurrentThread].tcb.thread_data;
+	}
 	
 	return td;
 }
@@ -34,26 +55,31 @@ thread_data_t* get_current_thread_data()
 /*****************************************************************************
 *              Eintragen eines Threads in die Verwaltungsstrukturen          *
 *****************************************************************************/
-threadno_t register_thread(const thread_function_t* thread, thread_priority_t priority, const unsigned char *threadname)
+threadno_t os_register_thread(const thread_function_t* thread, thread_priority_t priority, const unsigned char *threadname)
 {
 	system_call_t							*sc;
 	syscall_register_thread_t *calldata;
 	system_call_result_t			*sr;
+	int8_t 										id;
 	
 	assert(2 == sizeof(thread_function_t*));
 	
-	sc = begin_system_call(REGISTER_THREAD);
+	sc = os_begin_system_call(REGISTER_THREAD);
 	assert(REGISTER_THREAD == sc->type);
 	
 	calldata = &sc->call_data.register_thread;
 	
-	strncpy(calldata->name, threadname, MAX_THREAD_NAME_LENGTH);
+	calldata->name = threadname;
 	calldata->function = thread;
 	calldata->priority = priority;
 	
-	execute_system_call();
+	os_execute_system_call();
 
-	sr = get_system_call_result();
-	return sr->result_data.register_thread.last_registered_thread;
+	sr = os_get_system_call_result();
+	id = sr->result_data.register_thread.last_registered_thread;
+	
+	os_clear_system_call_result();
+	
+	return id;
 }
 

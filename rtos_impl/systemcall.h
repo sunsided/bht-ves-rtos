@@ -54,36 +54,41 @@ typedef struct {
 /**
 * Initiiert einen system call.
 */
-system_call_t* begin_system_call(const system_call_type type);
-
-/**
-* Bezieht den aktuell laufenden system call.
-*/
-system_call_t* get_system_call();
+system_call_t* os_begin_system_call(const system_call_type type);
 
 /**
 * Führt den system call aus.
 */
-void execute_system_call();
-
-/**
-* Setzt den system call zurück.
-*/
-void clear_system_call();
+void os_execute_system_call();
 
 /**
 * Bezieht das Ergebnis des system calls.
 */
-system_call_result_t* get_system_call_result();
+system_call_result_t* os_get_system_call_result();
 
 /**
 * Setzt das system call-Ergebnis zurück.
 */
-void clear_system_call_result();
+void os_clear_system_call_result();
+
+/**
+* Bezieht den aktuell laufenden system call.
+*/
+system_call_t* kernel_get_system_call();
+
+/**
+* Bezieht das Ergebnis des system calls.
+*/
+system_call_result_t* kernel_get_system_call_result();
+
+/**
+* Setzt den system call zurück.
+*/
+void kernel_clear_system_call();
 
 /**
 * Ermittelt, ob es sich um einen system call handelt.
 */
-bool is_system_call();
+bool kernel_is_system_call();
 
 #endif /* IMPL__SYSTEMCALL_H */

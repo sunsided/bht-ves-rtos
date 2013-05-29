@@ -33,9 +33,10 @@
 */
 #define RELOAD_THRESHOLD ((TIMER_LOAD_VALUE & 0xFF00) >> 9)
 
-void initialize_system_timer(void)
+void os_initialize_system_timer(void)
 {
-	reload_system_timer();
+	TH0 = (uint8_t)((TIMER_LOAD_VALUE & 0xFF00) >> 8);
+  TL0 = (uint8_t)(TIMER_LOAD_VALUE & 0x00FF);
 	
  	TMOD &= ~0x0F; // Bits für timer 0 clearen
 	TMOD |= 0x01;	 // timer mode 1: 16-bit timer/counter
@@ -45,7 +46,7 @@ void initialize_system_timer(void)
 	EA  = 1;													// global interrupt enable     
 }
 
-void reload_system_timer(void) 
+void kernel_reload_system_timer(void) using 1
 {
 	static uint16_t value;
 	
@@ -57,7 +58,7 @@ void reload_system_timer(void)
   TL0 = (uint8_t)(value & 0x00FF);
 }
 
-void start_system_timer(void) 
+void os_start_system_timer(void) 
 {
 	TR0 = 1;													// start timer 0
 }
@@ -68,7 +69,7 @@ void start_system_timer(void)
 * Erlaubt die atomare Ausführung von Anweisungen,
 * bis der Timer erneut aktiviert wird.
 */
-void suppress_system_timer_int() 
+void os_suppress_system_timer_int() 
 { 
 	ET0 = 0; 
 }
@@ -79,7 +80,7 @@ void suppress_system_timer_int()
 * Aktiviert den Systemtimer und beendet damit einen
 * atomaren Block.
 */
-void allow_system_timer_int() 
+void os_allow_system_timer_int() 
 { 
 	ET0 = 1; 
 }
@@ -91,7 +92,7 @@ void allow_system_timer_int()
 * wodurch nach Aktivieren des Timers der Interrupt-Handler
 * betreten wird.
 */
-void trigger_system_timer_overflow() 
+void os_trigger_system_timer_overflow() 
 { 
 	TF0 = 1;
 }

@@ -41,6 +41,6 @@ typedef enum {
 * @param priority Priorität des Threads
 * @returns 		  	Die Nummer des Threads oder THREAD_REGISTER_ERROR im Fehlerfall.
 */
-threadno_t register_thread(const thread_function_t* thread, thread_priority_t priority, const unsigned char *threadname);
+threadno_t os_register_thread(const thread_function_t* thread, thread_priority_t priority, const unsigned char *threadname);
 
 #endif /* THREADS_H */
