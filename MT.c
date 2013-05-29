@@ -74,6 +74,8 @@ void thread3(void)
 	static int i = 0;
 	
 	while(1) {
+		os_semaphore_wait(&test_semaphore[0]);
+		
 		i++;
 		os_sleep(100);
 	}

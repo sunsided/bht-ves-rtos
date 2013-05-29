@@ -86,7 +86,10 @@ sem_error_t os_semaphore_post(const semaphore_t* semaphore)
 	system_call_result_t				*sr;
 	sem_id_t										id;
 	
-	if (0 == semaphore) return SEM_INVALID_SEMAPHORE;
+	if (0 == semaphore)
+	{
+		return SEM_INVALID_SEMAPHORE;
+	}
 	id = semaphore->semaphore_id;
 	
 	// System call initiieren
@@ -151,7 +154,10 @@ sem_error_t os_semaphore_wait(const semaphore_t* semaphore)
 	system_call_result_t				*sr;
 	sem_id_t										id;
 	
-	if (0 == semaphore) return SEM_INVALID_SEMAPHORE;
+	if (0x0 == semaphore)
+	{
+		return SEM_INVALID_SEMAPHORE;
+	}
 	id = semaphore->semaphore_id;
 	
 	// System call initiieren
@@ -292,10 +298,11 @@ static void kernel_add_to_semaphore_list(const sem_id_t semaphore_id, const uint
 					continue;
 				}
 
-				// An dieser Stelle angekommen, ist die Priorität des neuen
-				// Threads geringer als die des idle-Threads, was einen
-				// Fehler darstellt.
-				assert(NULL);
+				// An dieser Stelle angekommen, haben wir das Ende der
+				// Liste erreicht, weswegen wir uns als letztes
+				// Element eintragen.
+				prev->next = thread_id;
+				new_item->next = NIL;
 				break;
 			}
 		}
