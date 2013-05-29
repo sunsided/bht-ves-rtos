@@ -53,7 +53,7 @@ void kernel_reload_system_timer(void) using 1
 	if (TH0 > RELOAD_THRESHOLD) return;
 	
 	// bereits abgelaufene Zeit kompensieren
-	value = (TH0 << 8) + TL0 + TIMER_LOAD_VALUE;
+	value = ((TH0 << 8) | TL0) + TIMER_LOAD_VALUE;
 	TH0 = (uint8_t)((value & 0xFF00) >> 8);
   TL0 = (uint8_t)(value & 0x00FF);
 }

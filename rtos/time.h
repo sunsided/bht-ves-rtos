@@ -10,4 +10,11 @@
 */
 void os_sleep(const sleep_t ms);
 
+/**
+* Liefert die Systemzeit in Millisekunden seit Start.
+*
+* @returns Die Laufzeit.
+*/
+systime_t os_time();
+
 #endif /* IMPL__SLEEP_H */

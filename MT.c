@@ -33,17 +33,21 @@ void thread0(void)
 	static int i = 0;
 
 	while(1) {
-		i++;    
+		i++; 
+		os_sleep(1000);
 	}
 }
 
 void thread1(void)
 {
 	static int i = 0;
+	static systime_t time;
 
 	while(1) {
 		i++;
-		printf("T1 i = %d\n", i);
+		time = os_time();
+		
+		printf("T1 i = %d, system time: %f s\n", i, time/1000.0F);
 		
 		os_sleep(1000);
 	}
@@ -64,6 +68,7 @@ void thread3(void)
 	
 	while(1) {
 		i++;
+		os_sleep(100);
 	}
 }
 

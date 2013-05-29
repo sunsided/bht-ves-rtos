@@ -57,13 +57,6 @@ tcb_list_item_t xdata tcb_list[MAX_THREADS];
 #define NIL (0xFF)
 
 /**
-* Invalid
-*
-* Markiert einen ungültigen Zeiger.
-*/
-#define INV (0xFE)
-
-/**
 * Kopf der Ready-Liste
 *
 * Kopf der Liste der rechenwilligen Threads.
@@ -80,12 +73,17 @@ static uint8_t tcb_list_sleep_head = NIL;
 /**
 * Anzahl der registrierten Threads
 */
-uint8_t thread_count = 0;
+volatile uint8_t thread_count = 0;
 
 /**
 * Index des aktuellen Threads
 */
-int8_t current_thread_id = INV;
+volatile int8_t current_thread_id = NIL;
+
+/**
+* Die Systemzeit in Millisekunden seit Start.
+*/
+volatile systime_t system_time = 0;
 
 /**
 * Gibt an, ob das OS initialisiert wurde
@@ -134,7 +132,7 @@ void os_init(void)
 	
 	for (tcb_idx = 0; tcb_idx < MAX_THREADS; ++tcb_idx)
 	{
-		tcb_list[tcb_idx].next = INV;
+		tcb_list[tcb_idx].next = NIL;
 	}
 	
 	os_intialize_uart();
@@ -170,6 +168,14 @@ static void kernel_strncpy(unsigned char *dst, const unsigned char *src, const u
 }
 
 /**
+* Aktualisiert die Systemzeit
+*/
+static void kernel_update_system_time() using 1
+{
+	system_time += TICK_DURATION_MS;
+}
+
+/**
 * Fügt einen Thread zur ready-Liste hinzu.
 *
 * @param thread_id Die ID des einzusortierenden Threads.
@@ -184,6 +190,9 @@ static void kernel_add_to_ready_list(const uint8_t thread_id) using 1
 	static tcb_list_item_t *new_item;
 	
 	new_item = &tcb_list[thread_id];
+	
+	// Als rechenwillig markieren
+	new_item->tcb.state = READY;
 	
 	// Sonderfall: Es handelt sich um den ersten Thread
 	if (NIL == tcb_list_ready_head) 
@@ -256,6 +265,9 @@ static void kernel_remove_from_ready_list(const uint8_t thread_id) using 1
 	if (NIL == tcb_list_ready_head) {
 		return;
 	}
+	
+	// Als blockiert markieren
+	tcb_list[thread_id].tcb.state = BLOCKED;
 	
 	// ist der zu entfernende Thread am Kopf der Liste, 
 	// Liste auf den next-Eintrag ändern.
@@ -339,7 +351,12 @@ static void kernel_add_to_sleep_list(const uint8_t thread_id) using 1
 			// Wenn ein Vorgängerelement existiert, dieses anpassen
 			if (NIL != prev_id) 
 			{
-				tcb_list[prev_id].next = thread_id;
+				// wenn prev identisch mit thread,
+				// war nur ein Eintrag in der Liste.
+				if (prev_id != thread_id)
+				{
+					tcb_list[prev_id].next = thread_id;
+				}
 			}
 			else
 			{
@@ -353,6 +370,7 @@ static void kernel_add_to_sleep_list(const uint8_t thread_id) using 1
 		// Die Schlafzeit des Threads ist größer als die integrierte
 		// Schlafzeit, daher Thread-Zeit verringern und nächstes Element anwählen.
 		thread_sleep_time -= tcb_list[token_id].tcb.sleep_duration;
+		prev_id = token_id;
 		token_id = tcb_list[token_id].next;
 	}
 }
@@ -379,8 +397,9 @@ static void kernel_update_sleep_list() using 1
 		thread_id = tcb_list_sleep_head;
 
 		tcb_list[thread_id].tcb.sleep_duration = 0;
-		tcb_list_sleep_head = tcb_list[thread_id].next;
-		
+		tcb_list[thread_id].next = NIL;
+
+		tcb_list_sleep_head = tcb_list[thread_id].next;		
 		kernel_add_to_ready_list(thread_id);
 	}
 }
@@ -410,7 +429,7 @@ static void kernel_exec_syscall_register_thread(const system_call_t *syscall) us
 	
 	// Control Block-Listenitem beziehen und initialisieren
 	tcb_list_item = &tcb_list[thread_id];
-	tcb_list_item->next = INV;
+	tcb_list_item->next = NIL;
 	
 	// Control Block beziehen und Werte setzen
 	tcb = &tcb_list_item->tcb;
@@ -470,14 +489,15 @@ uint8_t kernel_schedule_next_thread() using 1
 	// Der nächste rechenwillige Thread höchster Priorität
 	// befindet sich prinzipiell stets am Anfang der Liste.
 	
+	const bool current_is_ready 		= (READY == tcb_list[current_thread_id].tcb.state);
 	const int8_t current_priority 	= tcb_list[current_thread_id].tcb.priority;
-	const int8_t head_priority 		= tcb_list[tcb_list_ready_head].tcb.priority;
+	const int8_t head_priority 			= tcb_list[tcb_list_ready_head].tcb.priority;
 	uint8_t next_thread_id;
 	
 	// Wenn die Priorität des aktuellen Threads übereinstimmend mit
 	// der Priorität am Listenkopf ist und ein nachfolgendes Element
 	// mit selber Priorität existiert, soll dieses verwendet werden.
-	if (current_thread_id != INV && current_priority == head_priority)
+	if (current_is_ready && NIL != current_thread_id && current_priority == head_priority)
 	{
 		next_thread_id = tcb_list[current_thread_id].next;
 		if (current_priority == tcb_list[tcb_list[current_thread_id].next].tcb.priority) 
@@ -504,6 +524,9 @@ timer0() interrupt 1 using 1						// Int Vector at 000BH, Reg Bank 1
 	// Gibt an, ob es sich um den ersten context switch handelt
 	static bool is_first_context_switch = true;
 	
+	// Gibt an, ob es sich um einen system call handelte
+	static bool is_system_call;
+	
 	static uint8_t regIdx;			// Register-Index in der Schleife
 	static uint8_t idata *pi;				// Pointer in das interne RAM
 	static uint8_t idata *pd = POSRB0;	// Pointer auf die Registerbank 0
@@ -516,7 +539,8 @@ timer0() interrupt 1 using 1						// Int Vector at 000BH, Reg Bank 1
 	kernel_reload_system_timer();
 		
 	// Verarbeitung der system calls beginnen
-	if (kernel_is_system_call())
+	is_system_call = kernel_is_system_call();
+	if (is_system_call)
 	{
 		// system call beziehen und auswerten
 		syscall = kernel_get_system_call();
@@ -540,52 +564,68 @@ timer0() interrupt 1 using 1						// Int Vector at 000BH, Reg Bank 1
 		// system call zurücksetzen
 		kernel_clear_system_call();
 	}
-	else // if (is_system_call())
-	if (os_running && thread_count > 0)
+	
+	if (os_running)
 	{
-		kernel_update_sleep_list();
-		next_thread_id = kernel_schedule_next_thread();
-
-		pi = (unsigned char idata *)SP;			// Kopie des Stackpointers
-
-		// Registertausch nur bei Threadwechsel
-		if (next_thread_id != current_thread_id) 
-		{						 
-			if (is_first_context_switch)
-			{	
-				// Beim allerersten Aufruf von timer0 liegt der SP noch
-				// im ursprünglichen Bereich nach Systemstart. Er darf
-				// nicht gerettet werden! Der bei register_thread(...)
-				// initialisierte Wert wird verwendet!
-			
-				is_first_context_switch	 = false;
-				next_thread_id = 0;							
-			}
-			else 
-			{
-				// Stack pointer sichern
-				tcb_list[current_thread_id].tcb.sp  =  pi;
-			}               
-
-			// Retten von R0-R7 aus der von allen Threads gemeinsam genutzten Registerbank 0
-			for(regIdx=0; regIdx<REGISTER_COUNT; ++regIdx)
-			{
-				tcb_list[current_thread_id].tcb.reg[regIdx]  = *(pd + regIdx);
-			}
-			
-			// geretteten SP des Threads in Pointer pi laden
-			SP = tcb_list[next_thread_id].tcb.sp;						
-			pi = (unsigned char idata *)SP;
-			
-			// Wiederherstellen von R0-R7 in Registerbank 0
-			for(regIdx=0; regIdx<REGISTER_COUNT; ++regIdx)
-			{
-				*(pd + regIdx) = tcb_list[next_thread_id].tcb.reg[regIdx];
-			}
-		
-			// Threadwechsel vollzogen
-			current_thread_id = next_thread_id;
+		// Kernelzeit nur weiterzählen, wenn Timer regulär getickt hat
+		if (!is_system_call)
+		{
+			kernel_update_system_time();
 		}
+		
+		// Threadmanagement nur, wenn Threads registriert
+		if (thread_count > 0)
+		{
+			// sleep list nur modifizieren, wenn Timer regulär getickt
+			if (!is_system_call) 
+			{
+				kernel_update_sleep_list();
+			}
+			
+			// Kontextwechsel ist nötig, wenn aktueller Thread in sleep() geht
+			next_thread_id = kernel_schedule_next_thread();
+
+			pi = (unsigned char idata *)SP;			// Kopie des Stackpointers
+
+			// Registertausch nur bei Threadwechsel
+			if (next_thread_id != current_thread_id) 
+			{						 
+				if (is_first_context_switch)
+				{	
+					// Beim allerersten Aufruf von timer0 liegt der SP noch
+					// im ursprünglichen Bereich nach Systemstart. Er darf
+					// nicht gerettet werden! Der bei register_thread(...)
+					// initialisierte Wert wird verwendet!
+				
+					is_first_context_switch	 = false;
+					next_thread_id = 0;							
+				}
+				else 
+				{
+					// Stack pointer sichern
+					tcb_list[current_thread_id].tcb.sp  =  pi;
+				}               
+
+				// Retten von R0-R7 aus der von allen Threads gemeinsam genutzten Registerbank 0
+				for(regIdx=0; regIdx<REGISTER_COUNT; ++regIdx)
+				{
+					tcb_list[current_thread_id].tcb.reg[regIdx]  = *(pd + regIdx);
+				}
+				
+				// geretteten SP des Threads in Pointer pi laden
+				SP = tcb_list[next_thread_id].tcb.sp;						
+				pi = (unsigned char idata *)SP;
+				
+				// Wiederherstellen von R0-R7 in Registerbank 0
+				for(regIdx=0; regIdx<REGISTER_COUNT; ++regIdx)
+				{
+					*(pd + regIdx) = tcb_list[next_thread_id].tcb.reg[regIdx];
+				}
+			
+				// Threadwechsel vollzogen
+				current_thread_id = next_thread_id;
+			} // next != current
+		} // thread_count
 	}	// if (os_running)
 }
 

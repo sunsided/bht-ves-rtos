@@ -8,6 +8,7 @@ typedef unsigned short int 	uint16_t;		// 16-bit unsigned
 typedef unsigned long int 	uint32_t;   // 32-bit unsigned
 
 typedef int16_t sleep_t;
+typedef uint32_t systime_t;
 
 typedef enum {
 	true = 1,

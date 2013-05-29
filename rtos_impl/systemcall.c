@@ -6,7 +6,7 @@
 /**
 * Globaler Speicher für system call.
 */
-system_call_t system_call;
+volatile system_call_t system_call;
 
 /**
 * Initiiert einen system call.

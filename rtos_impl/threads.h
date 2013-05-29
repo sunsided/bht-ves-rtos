@@ -9,6 +9,22 @@
 #define MAX_THREADS  (5)						// maximale Anz. der verwaltbaren Threads
 #define MAX_THREAD_STACKLENGTH    (0x20)				// maximale Stacktiefe eines Threads
 																	// Für Änderungen siehe ***.m51-File
+	
+/**
+* Definiert dem Zustand des Threads
+*/
+typedef enum {
+	/**
+	* Blockiert
+	*/
+	BLOCKED = 0,
+	
+	/**
+	* Rechenwillig
+	*/
+	READY = 1,
+} thread_state_t;	
+																	
 
 /**
 * Daten eines Threads
@@ -54,6 +70,11 @@ typedef struct {
 	* Dauer eines Sleep-Vorganges.
 	*/
 	sleep_t sleep_duration;
+	
+	/**
+	* Der Zustand des Threads.
+	*/
+	thread_state_t state;
 } tcb_t;
 
 

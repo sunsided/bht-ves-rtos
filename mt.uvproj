@@ -415,6 +415,11 @@
               <FileType>5</FileType>
               <FilePath>.\rtos_impl\systemcall.h</FilePath>
             </File>
+            <File>
+              <FileName>time.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\rtos_impl\time.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -435,6 +440,11 @@
               <FileType>5</FileType>
               <FilePath>.\rtos\threads.h</FilePath>
             </File>
+            <File>
+              <FileName>time.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\rtos\time.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -444,6 +454,11 @@
               <FileName>syscall_register_thread.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\rtos_impl\syscall\syscall_register_thread.h</FilePath>
+            </File>
+            <File>
+              <FileName>syscall_sleep.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\rtos_impl\syscall\syscall_sleep.h</FilePath>
             </File>
           </Files>
         </Group>

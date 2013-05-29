@@ -1,7 +1,10 @@
 #include <assert.h>
 #include "syscall/syscall_sleep.h"
 #include "systemcall.h"
-#include "../rtos/sleep.h"
+#include "timer.h"
+#include "../rtos/time.h"
+
+extern systime_t system_time;
 
 /**
 * Pausert den Thread für die angegebene Zeit.
@@ -24,4 +27,19 @@ void os_sleep(const sleep_t ms)
 	
 	os_execute_system_call();
 	os_clear_system_call_result();
+}
+
+/**
+* Liefert die Systemzeit in Millisekunden seit Start.
+*
+* @returns Die Laufzeit.
+*/
+systime_t os_time()
+{
+	systime_t time; 
+	
+	os_suppress_system_timer_int();
+	time = system_time;
+	os_allow_system_timer_int();
+	return time;
 }

@@ -5,6 +5,6 @@
 "timer.obj",
 "threads.obj",
 "systemcall.obj",
-"sleep.obj" 
+"time.obj" 
 TO "mt" 
 RAMSIZE(256) 
