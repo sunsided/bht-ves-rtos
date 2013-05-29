@@ -49,6 +49,11 @@ typedef struct {
 	* Die Priorität des Threads.
 	*/
 	thread_priority_t priority;
+	
+	/**
+	* Dauer eines Sleep-Vorganges.
+	*/
+	int16_t sleep_duration;
 } tcb_t;
 
 

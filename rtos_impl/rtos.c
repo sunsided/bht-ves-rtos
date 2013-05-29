@@ -305,6 +305,7 @@ static void kernel_exec_syscall_register_thread(const system_call_t *syscall) us
 	
 	// Control Block beziehen und Werte setzen
 	tcb = &tcb_list_item->tcb;
+	tcb->sleep_duration = 0;
 	tcb->priority = sc->priority;
 	kernel_strncpy(tcb->thread_data.name, sc->name, MAX_THREAD_NAME_LENGTH);
 	
