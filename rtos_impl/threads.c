@@ -4,8 +4,8 @@
 #include "timer.h"
 #include "threads.h"
 
-extern uint8_t NrThreads;
-extern int8_t CurrentThread;
+extern uint8_t thread_count;
+extern int8_t current_thread_id;
 extern tcb_list_item_t xdata tcb_list[MAX_THREADS];
 
 /**
@@ -16,16 +16,16 @@ thread_data_t* os_get_current_thread_data()
 	static thread_data_t* td;
 	
 	// Atomare Ausführung beginnen, um Veränderung des
-	// CurrentThread-Wertes zu verhindern
+	// current_thread_id-Wertes zu verhindern
 	os_suppress_system_timer_int();
 	
-	if (0 == NrThreads)
+	if (0 == thread_count)
 	{
 		td = NULL;
 	}
 	else 
 	{
-		td = &tcb_list[CurrentThread].tcb.thread_data;
+		td = &tcb_list[current_thread_id].tcb.thread_data;
 	}
 	
 	os_allow_system_timer_int();
@@ -40,13 +40,13 @@ thread_data_t* kernel_get_current_thread_data() using 1
 {
 	static thread_data_t* td;
 		
-	if (0 == NrThreads)
+	if (0 == thread_count)
 	{
 		td = NULL;
 	}
 	else 
 	{
-		td = &tcb_list[CurrentThread].tcb.thread_data;
+		td = &tcb_list[current_thread_id].tcb.thread_data;
 	}
 	
 	return td;

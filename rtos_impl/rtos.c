@@ -64,12 +64,12 @@ static uint8_t tcb_list_ready_head = NIL;
 /**
 * Anzahl der registrierten Threads
 */
-uint8_t NrThreads = 0;
+uint8_t thread_count = 0;
 
 /**
 * Index des aktuellen Threads
 */
-int8_t CurrentThread = 0;
+int8_t current_thread_id = 0;
 
 /**
 * Gibt an, ob das OS initialisiert wurde
@@ -161,13 +161,13 @@ static void exec_syscall_register_thread(const system_call_t *syscall) using 1
 	sr = &kernel_get_system_call_result()->result_data.register_thread;
 	
 	// Sicherstellen, dass noch nicht alle Threads vergeben sind
-	if (MAX_THREADS == NrThreads)
+	if (MAX_THREADS == thread_count)
 	{
 		threadNumber = THREAD_REGISTER_ERROR;
 	}
 	else
-	{
-		threadNumber = (threadno_t)NrThreads++; // NOTE: Logik nimmt an, dass niemals Threads entfernt werden.
+	{	
+		threadNumber = (threadno_t)thread_count++; // NOTE: Logik nimmt an, dass niemals Threads entfernt werden.
 		
 		// Control Block beziehen und Priorität setzen
 		tcb = &tcb_list[threadNumber].tcb;
@@ -198,7 +198,7 @@ timer0() interrupt 1 using 1						// Int Vector at 000BH, Reg Bank 1
 	static uint8_t regIdx;			// Register-Index in der Schleife
 	static uint8_t idata *pi;				// Pointer in das interne RAM
 	static uint8_t idata *pd = POSRB0;	// Pointer auf die Registerbank 0
-	static int8_t  NewThread = FIRST;	// Nr des naechsten Threads
+	static int8_t  next_thread_id = FIRST;	// Nr des naechsten Threads
 															// Am Anfang ist NewThread auf 
 															// einen erkennbar nicht gültigen
 															// Wert gesetzt (Grund: s. 
@@ -229,18 +229,18 @@ timer0() interrupt 1 using 1						// Int Vector at 000BH, Reg Bank 1
 	if (os_running)
 	{
 		// Sind Threads zu verwalten?
-		if (NrThreads > 0) 
+		if (thread_count > 0) 
 		{
 
-			NewThread = (CurrentThread + 1)%NrThreads;	// Threadumschaltung
+			next_thread_id = (current_thread_id + 1)%thread_count;	// Threadumschaltung
 
 			pi = (unsigned char idata *)SP;			// Kopie des Stackpointers
 
-			if (NewThread != CurrentThread) {		// Nur bei Threadwechsel müssen
+			if (next_thread_id != current_thread_id) {		// Nur bei Threadwechsel müssen
 																// die Register gerettet werden!
 					 
-				if (NewThread == FIRST)					// Beim allerersten Aufruf von                
-					NewThread = 0;							// timer0 liegt der SP noch
+				if (next_thread_id == FIRST)					// Beim allerersten Aufruf von                
+					next_thread_id = 0;							// timer0 liegt der SP noch
 																// im ursprünglichen Bereich
 																// nach Systemstart. Er darf
 																// nicht gerettet werden! Der
@@ -248,25 +248,25 @@ timer0() interrupt 1 using 1						// Int Vector at 000BH, Reg Bank 1
 																// initialisierte Wert wird
 																// verwendet!
 				else {
-					tcb_list[CurrentThread].tcb.sp  =  pi;			// Sichern des SP
+					tcb_list[current_thread_id].tcb.sp  =  pi;			// Sichern des SP
 				}               
 
 				// Retten von R0-R7 aus der von allen Threads gemeinsam genutzten Registerbank 0
 				for(regIdx=0; regIdx<REGISTER_COUNT; ++regIdx)
 				{
-					tcb_list[CurrentThread].tcb.reg[regIdx]  = *(pd + regIdx);
+					tcb_list[current_thread_id].tcb.reg[regIdx]  = *(pd + regIdx);
 				}
 				
-				SP = tcb_list[NewThread].tcb.sp;						// geretteten SP des Threads
+				SP = tcb_list[next_thread_id].tcb.sp;						// geretteten SP des Threads
 				pi = (unsigned char idata *)SP;			// in Pointer pi laden
 				
 				// Wiederherstellen von R0-R7 in Registerbank 0
 				for(regIdx=0; regIdx<REGISTER_COUNT; ++regIdx)
 				{
-					*(pd + regIdx) = tcb_list[NewThread].tcb.reg[regIdx];
+					*(pd + regIdx) = tcb_list[next_thread_id].tcb.reg[regIdx];
 				}
 			
-				CurrentThread = NewThread;					// Ab jetzt ist der neue Thread
+				current_thread_id = next_thread_id;					// Ab jetzt ist der neue Thread
 			}                                         // der aktuelle!
 		}
 	}	
