@@ -234,6 +234,8 @@ void kernel_exec_syscall_sem_init(const system_call_t *syscall) using 1
 */
 void kernel_exec_syscall_sem_wait(const system_call_t *syscall) using 1
 {
+	// TODO: Aktuellen Thread von ready-Liste entfernen
+	// TODO: Thread auf Liste des Semaphors setzen
 }
 
 /**
@@ -243,4 +245,6 @@ void kernel_exec_syscall_sem_wait(const system_call_t *syscall) using 1
 */
 void kernel_exec_syscall_sem_post(const system_call_t *syscall) using 1
 {
+	// TODO: Ersten Thread von Liste des Semaphors entfernen
+	// TODO: Thread auf ready-Liste setzen
 }
