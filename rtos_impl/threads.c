@@ -19,43 +19,25 @@ threadno_t kernel_get_current_thread_id()
 */
 thread_data_t* os_get_current_thread_data()
 {
-	static thread_data_t* td;
-	
-	// Atomare Ausführung beginnen, um Veränderung des
-	// current_thread_id-Wertes zu verhindern
-	os_suppress_system_timer_int();
-	
 	if (0 == thread_count)
 	{
-		td = NULL;
-	}
-	else 
-	{
-		td = &tcb_list[current_thread_id].tcb.thread_data;
+		return NULL;
 	}
 	
-	os_allow_system_timer_int();
-	
-	return td;
+	return &tcb_list[current_thread_id].tcb.thread_data;
 }
 
 /**
 * Liefert die Daten des aktuellen Threads
 */
 thread_data_t* kernel_get_current_thread_data() using 1
-{
-	static thread_data_t* td;
-		
+{	
 	if (0 == thread_count)
 	{
-		td = NULL;
-	}
-	else 
-	{
-		td = &tcb_list[current_thread_id].tcb.thread_data;
+		return NULL;
 	}
 	
-	return td;
+	return &tcb_list[current_thread_id].tcb.thread_data;
 }
 
 /*****************************************************************************
