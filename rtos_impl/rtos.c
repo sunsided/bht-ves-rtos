@@ -17,15 +17,45 @@
 
 #include "../rtos/rtos.h"
 
+/**
+* Hilfsdefinition für while(ALWAYS) {}
+*/
 #define ALWAYS 		  (1)
-#define POSRB0      (0x00)					// Position von Reg.Bank 0 im int. RAM
-#define SLICE       (4*100)					// Timeslice
 
-																	//Threadstacks 
+/**
+* Position der Registerbank 0 im internen RAM
+*/
+#define POSRB0      (0x00)
+
+/**
+* Bezieht das MSB eines Wortes
+*/
+#define HIGH_BYTE_FROM_PTR(ptr) (((uint16_t)(ptr) & 0xFF00U) >> 8)
+
+/**
+* Bezieht das LSB eines Wortes
+*/
+#define LOW_BYTE_FROM_PTR(ptr)   ((uint16_t)(ptr) & 0x00FFU)
+
+/**
+* Stacks der Threads
+*/
 uint8_t idata Stack[MAX_THREADS][MAX_THREAD_STACKLENGTH] _at_ 0x30;   
+
+/**
+* Liste der Thread Control Blocks
+*/
 tcb_list_item_t xdata tcb_list[MAX_THREADS];									//Thread Cntrl. Bl.
-uint8_t NrThreads = 0;								//Anzahl registr.
-int8_t CurrentThread = 0;	// Nr des laufenden Threads
+
+/**
+* Anzahl der registrierten Threads
+*/
+uint8_t NrThreads = 0;
+
+/**
+* Index des aktuellen Threads
+*/
+int8_t CurrentThread = 0;
 
 /**
 * Gibt an, ob das OS initialisiert wurde
@@ -79,17 +109,6 @@ void init_os(void)
 	
 	os_initialized = true;
 }
-
-
-/**
-* Bezieht das MSB eines Wortes
-*/
-#define HIGH_BYTE_FROM_PTR(ptr) (((uint16_t)(ptr) & 0xFF00U) >> 8)
-
-/**
-* Bezieht das LSB eines Wortes
-*/
-#define LOW_BYTE_FROM_PTR(ptr)   ((uint16_t)(ptr) & 0x00FFU)
 
 /**
 * Führt den system call REGISTER_THREAD aus.
