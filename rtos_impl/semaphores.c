@@ -220,7 +220,7 @@ void kernel_exec_syscall_sem_init(const system_call_t *syscall) using 1
 	// Control Block-Listenitem beziehen und initialisieren
 	sem_list_item = &semaphore_list[semaphore_id];
 	sem_list_item->next = NIL;
-	sem_list_item->value = 0;
+	sem_list_item->value = sc->initial_size;
 	
 	// Ergebnis des system calls speichern
 	sr = &kernel_get_system_call_result()->result_data.semaphore;
