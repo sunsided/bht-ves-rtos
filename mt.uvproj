@@ -415,6 +415,11 @@
               <FileType>5</FileType>
               <FilePath>.\rtos_impl\systemcall.h</FilePath>
             </File>
+            <File>
+              <FileName>syscall_register_thread.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\rtos_impl\syscall\syscall_register_thread.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
