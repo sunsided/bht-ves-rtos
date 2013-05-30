@@ -554,11 +554,8 @@ timer0() interrupt 1 using 1						// Int Vector at 000BH, Reg Bank 1
 	static uint8_t regIdx;			// Register-Index in der Schleife
 	static uint8_t idata *pi;				// Pointer in das interne RAM
 	static uint8_t idata *pd = POSRB0;	// Pointer auf die Registerbank 0
-	static int8_t  next_thread_id = FIRST;	// Nr des naechsten Threads
-															// Am Anfang ist NewThread auf 
-															// einen erkennbar nicht gültigen
-															// Wert gesetzt (Grund: s. 
-															// "if (NewThread == FIRST)").
+	static int8_t  next_thread_id;	// Nr des naechsten Threads
+
 
 	kernel_reload_system_timer();
 		
