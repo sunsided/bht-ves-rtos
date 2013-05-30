@@ -78,6 +78,11 @@ typedef struct {
 } system_call_result_t;
 
 /**
+* Initialisiert die system call-Schnittstelle.
+*/
+void os_initialize_system_calls();
+
+/**
 * Initiiert einen system call.
 *
 * Diese Methode betritt implizit einen atomaren Bereich.
@@ -125,7 +130,7 @@ system_call_t* kernel_get_system_call();
 *
 * @returns Das system call-Ergebnis des aktuellen Threads.
 */
-system_call_result_t* kernel_get_system_call_result();
+system_call_result_t* kernel_prepare_system_call_result();
 
 /**
 * Setzt den system call zurück.

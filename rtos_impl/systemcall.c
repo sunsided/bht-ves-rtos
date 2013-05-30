@@ -8,21 +8,26 @@
 */
 volatile system_call_t system_call;
 
+// TODO: Globaler Zeiger auf call-result, den der Dispatcher umsetzt.
+
+/**
+* Initialisiert die system call-Schnittstelle.
+*/
+void os_initialize_system_calls()
+{
+	system_call.type = NO_SYSTEM_CALL;
+}
+
 /**
 * Initiiert einen system call.
 */
 system_call_t* os_begin_system_call(const system_call_type type) 
 {
-	system_call_result_t *result;
 	assert(NO_SYSTEM_CALL != type);
 	
 	os_suppress_system_timer_int();
 	
-	result = os_get_system_call_result();
-
-	result->type = type;
 	system_call.type = type;
-	
 	return &system_call;
 }
 
@@ -65,24 +70,19 @@ void kernel_clear_system_call() using 1
 */
 system_call_result_t* os_get_system_call_result()
 {
-	thread_data_t *thread_data;
-	system_call_result_t *result;
+	static thread_data_t *thread_data;
 	
 	thread_data = os_get_current_thread_data();
-	result = &thread_data->syscall_result;
-	
-	result->type = system_call.type;
-	
-	return result;
+	return &thread_data->syscall_result;
 }
 
 /**
 * Bezieht das Ergebnis des system calls.
 */
-system_call_result_t* kernel_get_system_call_result() using 1
+system_call_result_t* kernel_prepare_system_call_result() using 1
 {
-	thread_data_t *thread_data;
-	system_call_result_t *result;
+	static thread_data_t *thread_data;
+	static system_call_result_t *result;
 	
 	thread_data = kernel_get_current_thread_data();
 	result = &thread_data->syscall_result;

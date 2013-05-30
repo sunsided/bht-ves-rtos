@@ -20,7 +20,7 @@ static uint8_t semaphore_count = 0;
 */
 void os_initialize_semaphore_list(void)
 {
-	sem_id_t sem_idx;
+	static sem_id_t sem_idx;
 	
 	semaphore_count = 0;
 	for (sem_idx = 0; sem_idx < MAX_SEMAPHORE_COUNT; ++sem_idx)
@@ -39,9 +39,9 @@ void os_initialize_semaphore_list(void)
 */
 sem_error_t os_semaphore_init(semaphore_t* semaphore, const sem_size_t sem_size)
 {
-	system_call_t							*sc;
-	syscall_init_semaphore_t	*calldata;
-	system_call_result_t			*sr;
+	static system_call_t							*sc;
+	static syscall_init_semaphore_t	*calldata;
+	static system_call_result_t			*sr;
 	
 	if (0 == semaphore) return SEM_INVALID_SEMAPHORE;
 	
@@ -81,10 +81,10 @@ sem_error_t os_semaphore_init(semaphore_t* semaphore, const sem_size_t sem_size)
 */
 sem_error_t os_semaphore_post(const semaphore_t* semaphore)
 {
-	system_call_t								*sc;
-	syscall_modify_semaphore_t	*calldata;
-	system_call_result_t				*sr;
-	sem_id_t										id;
+	static system_call_t								*sc;
+	static syscall_modify_semaphore_t	*calldata;
+	static system_call_result_t				*sr;
+	static sem_id_t										id;
 	
 	if (0 == semaphore)
 	{
@@ -106,27 +106,22 @@ sem_error_t os_semaphore_post(const semaphore_t* semaphore)
 	}
 	
 	// Notwendigkeit des system calls überprüfen:
-	// Wenn Semaphor-Wert größer als null, ist kein
-	// anderer Thread blockiert - ein call ist unnötig.
-	if (semaphore_list[id].value > 0)
-	{
-		// Semaphor erhöhen und Operation abbrechen
-		++semaphore_list[id].value;
-		
-		os_cancel_execute_system_call();
-		return SEM_SUCCESS;
-	}
-
-	// Wenn kein Thread aufgeweckt werden muss,
-	// system call abbrechen.
+	// Wenn kein blockierender Thread, erhöhen.
 	if (NIL == semaphore_list[id].list_head)
 	{
+		// Semaphor erhöhen und Operation abbrechen
+		if (semaphore_list[id].value < 0xFF)
+		{
+			++semaphore_list[id].value;
+			assert(0x0 < semaphore_list[id].value);
+		}
+		
 		os_cancel_execute_system_call();
 		return SEM_SUCCESS;
 	}
 	
 	// Affentest
-	assert(NIL == semaphore_list[id].list_head);
+	assert(NIL != semaphore_list[id].list_head);
 	
 	// Mindestens ein Thread wartet auf den Semaphor.
 	// system call ausführen
@@ -134,9 +129,13 @@ sem_error_t os_semaphore_post(const semaphore_t* semaphore)
 	calldata->semaphore_id = id;
 	os_execute_system_call();
 
+	// NOTE: An dieser Stelle können alle static-Variablen überschrieben worden sein.
+	
+	/*
 	// sanity check
 	sr = os_get_system_call_result();
-	assert(id == sr->result_data.semaphore.semaphore_id);
+	assert(semaphore->semaphore_id == sr->result_data.semaphore.semaphore_id);
+	*/
 	os_clear_system_call_result();
 	
 	return SEM_SUCCESS;
@@ -149,10 +148,10 @@ sem_error_t os_semaphore_post(const semaphore_t* semaphore)
 */
 sem_error_t os_semaphore_wait(const semaphore_t* semaphore)
 {
-	system_call_t								*sc;
-	syscall_modify_semaphore_t	*calldata;
-	system_call_result_t				*sr;
-	sem_id_t										id;
+	static system_call_t							*sc;
+	static syscall_modify_semaphore_t	*calldata;
+	static system_call_result_t				*sr;
+	static sem_id_t										id;
 	
 	if (0x0 == semaphore)
 	{
@@ -178,15 +177,13 @@ sem_error_t os_semaphore_wait(const semaphore_t* semaphore)
 	// anderer Thread blockiert - ein call ist unnötig.
 	if (semaphore_list[id].value > 0)
 	{
-		// Semaphor verringern und Operation abbrechen			// TODO: Operation ist bis auf Vorzeichen und Typ identisch mit _post!
+		// Semaphor verringern und Operation abbrechen
 		--semaphore_list[id].value;
+		assert(0xFF > semaphore_list[id].value);
 		
 		os_cancel_execute_system_call();
 		return SEM_SUCCESS;
 	}
-
-	// Affentest
-	assert(NIL != semaphore_list[id].list_head);
 	
 	// Semaphor war leer - Blockierung anfordern.
 	// system call ausführen
@@ -194,9 +191,14 @@ sem_error_t os_semaphore_wait(const semaphore_t* semaphore)
 	calldata->semaphore_id = id;
 	os_execute_system_call();
 
+	// NOTE: An dieser Stelle können alle static-Variablen überschrieben worden sein.
+	
+	// NOTE: Es scheint, dass der Funktionsparameter verändert wird!
+	/*
 	// sanity check
 	sr = os_get_system_call_result();
-	assert(id == sr->result_data.semaphore.semaphore_id);
+	assert(semaphore->semaphore_id == sr->result_data.semaphore.semaphore_id);
+	*/
 	os_clear_system_call_result();
 	
 	return SEM_SUCCESS;
@@ -230,7 +232,7 @@ void kernel_exec_syscall_sem_init(const system_call_t *syscall) using 1
 	sem_list_item->value = sc->initial_size;
 	
 	// Ergebnis des system calls speichern
-	sr = &kernel_get_system_call_result()->result_data.semaphore;
+	sr = &kernel_prepare_system_call_result()->result_data.semaphore;
 	sr->semaphore_id = semaphore_id;	
 }
 
@@ -301,7 +303,14 @@ static void kernel_add_to_semaphore_list(const sem_id_t semaphore_id, const uint
 				// An dieser Stelle angekommen, haben wir das Ende der
 				// Liste erreicht, weswegen wir uns als letztes
 				// Element eintragen.
-				prev->next = thread_id;
+				if (NULL != prev)
+				{
+					prev->next = thread_id;
+				}
+				else
+				{
+					token->next = thread_id;
+				}
 				new_item->next = NIL;
 				break;
 			}
@@ -316,9 +325,19 @@ static void kernel_add_to_semaphore_list(const sem_id_t semaphore_id, const uint
 * @param semaphor_id 	Die ID des Semaphors
 * @param threaD_id		Die ID des Threads
 */
-static int8_t kernel_remove_to_semaphore_list(sem_id_t semaphore_id) using 1
+static uint8_t kernel_remove_from_semaphore_list(sem_id_t semaphore_id) using 1
 {
+	static uint8_t thread_id;
 	
+	assert(NIL != semaphore_list[semaphore_id].list_head);
+	
+	// Zeiger vom Beginn der Semaphor-Liste besorgen
+	thread_id = semaphore_list[semaphore_id].list_head;
+	
+	// Semaphor-Zeiger auf Nachfolger setzen
+	semaphore_list[semaphore_id].list_head = tcb_list[thread_id].next;
+	
+	return thread_id;
 }
 
 /**
@@ -330,7 +349,18 @@ void kernel_exec_syscall_sem_wait(const system_call_t *syscall) using 1
 {
 	static int8_t 		thread_id;
 	static sem_id_t 	semaphore_id;
-		
+
+	static syscall_modify_semaphore_t	*sc;
+	static syscall_semaphore_result_t	*sr;
+	
+	// Semaphor-ID aus syscall beziehen
+	sc = (syscall_modify_semaphore_t *)&syscall->call_data;
+	semaphore_id = sc->semaphore_id;
+	
+	// Ergebnis des system calls speichern
+	sr = &kernel_prepare_system_call_result()->result_data.semaphore;
+	sr->semaphore_id = semaphore_id;
+	
 	// Aktuellen Thread von ready-Liste entfernen
 	thread_id = kernel_get_current_thread_id();
 	kernel_remove_from_ready_list(thread_id);
@@ -349,9 +379,19 @@ void kernel_exec_syscall_sem_post(const system_call_t *syscall) using 1
 	static int8_t 		thread_id;
 	static sem_id_t 	semaphore_id;
 	
+	static syscall_modify_semaphore_t	*sc;
+	static syscall_semaphore_result_t	*sr;
+	
+	// Semaphor-ID aus syscall beziehen
+	sc = (syscall_modify_semaphore_t *)&syscall->call_data;
+	semaphore_id = sc->semaphore_id;
+	
+	// Ergebnis des system calls speichern
+	sr = &kernel_prepare_system_call_result()->result_data.semaphore;
+	sr->semaphore_id = semaphore_id;
+	
 	// Ersten Thread von Liste des Semaphors entfernen
-	thread_id = kernel_get_current_thread_id();
-	thread_id = kernel_remove_to_semaphore_list(semaphore_id);
+	thread_id = kernel_remove_from_semaphore_list(semaphore_id);
 	
 	// Thread auf ready-Liste setzen
 	if (NIL != thread_id)

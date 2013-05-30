@@ -13,8 +13,8 @@ extern systime_t system_time;
 */
 void os_sleep(const sleep_t ms)
 {
-	system_call_t							*sc;
-	syscall_sleep_t					 *calldata;
+	static system_call_t			*sc;
+	static syscall_sleep_t		*calldata;
 	
 	sc = os_begin_system_call(SLEEP);
 	assert(SLEEP == sc->type);
@@ -36,7 +36,7 @@ void os_sleep(const sleep_t ms)
 */
 systime_t os_time()
 {
-	systime_t time; 
+	static systime_t time; 
 	
 	os_suppress_system_timer_int();
 	time = system_time;

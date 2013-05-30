@@ -104,6 +104,11 @@ extern volatile uint8_t thread_count;
 extern volatile threadno_t current_thread_id;
 
 /**
+* ID des idle-Threads
+*/
+extern volatile threadno_t idle_thread_id;
+
+/**
 * Liste der Thread Control Blocks
 */
 extern tcb_list_item_t xdata tcb_list[MAX_THREADS];
@@ -122,6 +127,11 @@ thread_data_t* os_get_current_thread_data();
 
 /**
 * Liefert die Daten des aktuellen Threads
+*
+* Wenn das System nocht nicht gestartet wurde, werden
+* die Thread-Daten des idle threads verwendet.
+*
+* @returns Die thread-lokalen Daten des aktuellen Threads oder des idle Threads.
 */
 thread_data_t* kernel_get_current_thread_data();
 

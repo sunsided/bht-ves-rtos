@@ -28,34 +28,33 @@
 #include "rtos/rtos.h"
 
 /**
+* Semaphor für den Systemzeit-Thread.
+*/
+static semaphore_t timer_semaphore;
+
+/**
 * Test-Semaphore
 */
 static semaphore_t test_semaphore[2];
 
 // Alle Threads laufen in Registerbank 0
-void thread0(void)
+void tick_system_time(void)
 {
-	static int i = 0;
-
 	while(1) {
-		i++; 
 		os_sleep(1000);
-		// os_semaphore_post(&test_semaphore[0]);
+		os_semaphore_post(&timer_semaphore);
 	}
 }
 
-void thread1(void)
+void print_system_time(void)
 {
-	static int i = 0;
 	static systime_t time;
 
 	while(1) {
-		os_semaphore_wait(&test_semaphore[0]);
+		os_semaphore_wait(&timer_semaphore);
 		
-		i++;
 		time = os_time();
-		
-		printf("T1 i = %d, system time: %.3f s\n", i, time/1000.0F);
+		printf("system time: %.3f s\n", time/1000.0F);
 	}
 }
 
@@ -74,7 +73,7 @@ void thread3(void)
 	static int i = 0;
 	
 	while(1) {
-		os_semaphore_wait(&test_semaphore[0]);
+		os_semaphore_wait(&test_semaphore);
 		
 		i++;
 		os_sleep(100);
@@ -93,13 +92,13 @@ void thread3(void)
 void register_threads() {
 	threadno_t thread;
 		
-	thread = os_register_thread(thread0, PRIO_HIGH, "Erster Thread");
+	thread = os_register_thread(tick_system_time, PRIO_HIGHEST, "System Tick");
 	ASSERT_THREAD_REGISTERED(thread);
-	printf("thread0 registriert als ID %u.\r\n", (uint16_t)thread); // NOTE: Cast ist ein Fix für endianness
+	printf("tick_system_time registriert als ID %u.\r\n", (uint16_t)thread); // NOTE: Cast ist ein Fix für endianness
 	
-	thread = os_register_thread(thread1, PRIO_HIGH, "Zweiter Thread");
+	thread = os_register_thread(print_system_time, PRIO_HIGH, "Uhrzeit");
 	ASSERT_THREAD_REGISTERED(thread);
-	printf("thread1 registriert als ID %u.\r\n", (uint16_t)thread);
+	printf("print_system_time registriert als ID %u.\r\n", (uint16_t)thread);
 	
 	thread = os_register_thread(thread2, PRIO_LOW, "Dritter Thread");
 	ASSERT_THREAD_REGISTERED(thread);
@@ -123,6 +122,10 @@ void register_threads() {
 void initialize_semaphores() {
 	sem_error_t result;
 		
+	result = os_semaphore_init(&timer_semaphore, 0);
+	ASSERT_SEMAPHORE_INITIALIZED(result, timer_semaphore);
+	printf("Timer-Semaphor initialisiert als ID %u.\r\n", (uint16_t)timer_semaphore.semaphore_id);
+	
 	result = os_semaphore_init(&test_semaphore[0], 10);
 	ASSERT_SEMAPHORE_INITIALIZED(result, test_semaphore[0]);
 	printf("Test-Semaphor 1 initialisiert als ID %u.\r\n", (uint16_t)test_semaphore[0].semaphore_id);

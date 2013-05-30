@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <string.h>
+#include "system.h"
 #include "systemcall.h"
 #include "timer.h"
 #include "threads.h"
@@ -15,29 +16,63 @@ threadno_t kernel_get_current_thread_id()
 }
 
 /**
-* Liefert die Daten des aktuellen Threads
+* Liefert die Daten des aktuellen Threads.
+*
+* Wenn das System nocht nicht gestartet wurde, werden
+* die Thread-Daten des idle threads verwendet.
+*
+* @returns Die thread-lokalen Daten des aktuellen Threads oder des idle Threads.
 */
 thread_data_t* os_get_current_thread_data()
 {
+	static uint8_t thread_id;
+	
 	if (0 == thread_count)
 	{
 		return NULL;
 	}
 	
-	return &tcb_list[current_thread_id].tcb.thread_data;
+		// Thread-ID ermitteln
+	thread_id = current_thread_id;
+	if (NIL == current_thread_id)
+	{
+		// Da current_thread_id aufgrund des noch nicht erfolgten
+		// Kontextwechsels noch nicht definiert ist, wird die
+		// ID des idle threads verwendet
+		thread_id = idle_thread_id;
+	}
+	
+	return &tcb_list[thread_id].tcb.thread_data;
 }
 
 /**
-* Liefert die Daten des aktuellen Threads
+* Liefert die Daten des aktuellen Threads.
+*
+* Wenn das System nocht nicht gestartet wurde, werden
+* die Thread-Daten des idle threads verwendet.
+*
+* @returns Die thread-lokalen Daten des aktuellen Threads oder des idle Threads.
 */
 thread_data_t* kernel_get_current_thread_data() using 1
 {	
+	static uint8_t thread_id;
+	
 	if (0 == thread_count)
 	{
 		return NULL;
 	}
 	
-	return &tcb_list[current_thread_id].tcb.thread_data;
+	// Thread-ID ermitteln
+	thread_id = current_thread_id;
+	if (NIL == current_thread_id)
+	{
+		// Da current_thread_id aufgrund des noch nicht erfolgten
+		// Kontextwechsels noch nicht definiert ist, wird die
+		// ID des idle threads verwendet
+		thread_id = idle_thread_id;
+	}
+	
+	return &tcb_list[thread_id].tcb.thread_data;
 }
 
 /*****************************************************************************
@@ -45,10 +80,10 @@ thread_data_t* kernel_get_current_thread_data() using 1
 *****************************************************************************/
 threadno_t os_register_thread(const thread_function_t* thread, thread_priority_t priority, const unsigned char *threadname)
 {
-	system_call_t							*sc;
-	syscall_register_thread_t *calldata;
-	system_call_result_t			*sr;
-	int8_t 										id;
+	static system_call_t							*sc;
+	static syscall_register_thread_t *calldata;
+	static system_call_result_t			*sr;
+	static int8_t 										id;
 	
 	assert(2 == sizeof(thread_function_t*));
 	

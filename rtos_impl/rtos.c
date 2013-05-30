@@ -75,6 +75,11 @@ volatile uint8_t thread_count = 0;
 volatile threadno_t current_thread_id = -1;
 
 /**
+* ID des idle-Threads
+*/
+volatile threadno_t idle_thread_id;
+
+/**
 * Die Systemzeit in Millisekunden seit Start.
 */
 volatile systime_t system_time = 0;
@@ -131,9 +136,9 @@ void os_start(void)
 */
 void os_init(void)
 {
-	threadno_t idle_thread_no;
-	
 	assert(false == os_running);
+	
+	os_initialize_system_calls();
 	
 	os_initialize_tcb_list();
 	os_initialize_semaphore_list();
@@ -141,8 +146,8 @@ void os_init(void)
 	os_intialize_uart();
 	os_initialize_system_timer();
 	
-	idle_thread_no = os_register_thread(idle_thread, PRIO_RESERVED_IDLE, "Idle Thread");
-	assert(0 == idle_thread_no);
+	idle_thread_id = os_register_thread(idle_thread, PRIO_RESERVED_IDLE, "Idle Thread");
+	assert(0 == idle_thread_id);
 
 	os_initialized = true;
 }
@@ -183,7 +188,7 @@ static void kernel_update_system_time() using 1
 *
 * @param thread_id Die ID des einzusortierenden Threads.
 */
-static void kernel_add_to_ready_list(const uint8_t thread_id) using 1
+void kernel_add_to_ready_list(const uint8_t thread_id) using 1
 {
 	static uint8_t					token_id;
 	
@@ -458,7 +463,7 @@ static void kernel_exec_syscall_register_thread(const system_call_t *syscall) us
 	kernel_add_to_ready_list(thread_id);
 
 	// Ergebnis des system calls speichern
-	sr = &kernel_get_system_call_result()->result_data.register_thread;
+	sr = &kernel_prepare_system_call_result()->result_data.register_thread;
 	sr->last_registered_thread = thread_id;
 }
 
