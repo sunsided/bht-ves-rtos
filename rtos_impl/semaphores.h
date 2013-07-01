@@ -1,7 +1,7 @@
 #ifndef IMPL__SEMAPHORES_H
 #define IMPL__SEMAPHORES_H
 
-#include "../rtos/semaphores.h"
+#include "../rtos/rtos_semaphores.h"
 
 /**
 * Maximale Anzahl an Semaphoren

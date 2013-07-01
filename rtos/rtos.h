@@ -2,9 +2,9 @@
 #define RTOS_H
 
 #include "datatypes.h"
-#include "threads.h"
-#include "time.h"
-#include "semaphores.h"
+#include "rtos_threads.h"
+#include "rtos_time.h"
+#include "rtos_semaphores.h"
 
 /**
 * Initialisiert das Betriebssystem.

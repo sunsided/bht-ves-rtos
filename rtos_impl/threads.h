@@ -1,7 +1,7 @@
 #ifndef IMPL__THREADS_H
 #define IMPL__THREADS_H
 
-#include "../rtos/threads.h"
+#include "../rtos/rtos_threads.h"
 #include "systemcall.h"
 
 #define FIRST       (-1)

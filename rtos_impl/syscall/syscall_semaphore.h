@@ -1,7 +1,7 @@
 #ifndef IMPL__SYSCALL_SEMAPHORE_H
 #define IMPL__SYSCALL_SEMAPHORE_H
 
-#include "../../rtos/semaphores.h"
+#include "../../rtos/rtos_semaphores.h"
 
 /**
 * syscall_init_semaphore_t - Initialisierung eines Semaphors
