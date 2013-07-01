@@ -1,3 +1,17 @@
+/*****************************************************************************
+*                                                                            
+* Beispiel für einen minimalen Multithreading-Betrieb (MT-Betrieb) 
+* auf einem Prozessor der 8051-Familie.
+*                                                                            
+* Markus Mayer   (Matr-Nr. XXXXXX)			                                 
+* Patrick Kaiser (Matr-Nr. YYYYYY)			                                 
+*
+* Haupt-Includefile für OS-spezifische Operationen. Beinhaltet 
+* Funktionsdefinitonen zum Initialisieren und Starten des Betriebssystems,
+* sowie Includes der Thread-, Zeit- und Semaphorfunktionalität.
+*                                                                            
+*****************************************************************************/
+
 #ifndef RTOS_H
 #define RTOS_H
 

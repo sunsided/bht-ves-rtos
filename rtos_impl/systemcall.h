@@ -1,3 +1,18 @@
+/*****************************************************************************
+*                                                                            
+* Beispiel für einen minimalen Multithreading-Betrieb (MT-Betrieb) 
+* auf einem Prozessor der 8051-Familie.
+*                                                                            
+* Markus Mayer   (Matr-Nr. XXXXXX)			                                 
+* Patrick Kaiser (Matr-Nr. YYYYYY)			                                 
+*
+* Diese Datei enthält die Definitionen für die system calls im Kernel space.
+* Die system call-Struktur (sowie die system call-Rückgabestruktur) beinhaltet
+* union-Konstrukte mit konkreten Datentypen, welche in 
+* ./syscall/syscall_<name>.h zu finden sind.
+*                                                                            
+*****************************************************************************/
+
 #ifndef IMPL__SYSTEMCALL_H
 #define IMPL__SYSTEMCALL_H
 
@@ -54,6 +69,9 @@ typedef struct {
 	} call_data;
 } system_call_t;
 
+/**
+* Rückgabestruktur für system call-Ergebnisse
+*/
 typedef struct {
 	/**
 	* Gibt die Art des system calls an

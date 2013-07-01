@@ -1,3 +1,16 @@
+/*****************************************************************************
+*                                                                            
+* Beispiel für einen minimalen Multithreading-Betrieb (MT-Betrieb) 
+* auf einem Prozessor der 8051-Familie.
+*                                                                            
+* Markus Mayer   (Matr-Nr. XXXXXX)			                                 
+* Patrick Kaiser (Matr-Nr. YYYYYY)			                                 
+*
+* Diese Datei enthält die konkrete Definition die Über- und Rückgabestrukturen
+* von Thread-spezifischen system calls.
+*                                                                            
+*****************************************************************************/
+
 #ifndef IMPL__SYSCALL_REGISTER_THREAD_H
 #define IMPL__SYSCALL_REGISTER_THREAD_H
 

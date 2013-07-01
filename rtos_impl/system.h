@@ -1,3 +1,16 @@
+/*****************************************************************************
+*                                                                            
+* Beispiel für einen minimalen Multithreading-Betrieb (MT-Betrieb) 
+* auf einem Prozessor der 8051-Familie.
+*                                                                            
+* Markus Mayer   (Matr-Nr. XXXXXX)			                                 
+* Patrick Kaiser (Matr-Nr. YYYYYY)			                                 
+*
+* Diese Datei enthält die systemspezifische Einstellungen und sonstige
+* Defines.
+*                                                                            
+*****************************************************************************/
+
 #ifndef IMPL__SYSTEM_H
 #define IMPL__SYSTEM_H
 

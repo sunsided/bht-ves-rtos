@@ -1,3 +1,15 @@
+/*****************************************************************************
+*                                                                            
+* Beispiel für einen minimalen Multithreading-Betrieb (MT-Betrieb) 
+* auf einem Prozessor der 8051-Familie.
+*                                                                            
+* Markus Mayer   (Matr-Nr. XXXXXX)			                                 
+* Patrick Kaiser (Matr-Nr. YYYYYY)			                                 
+*
+* Beinhaltet user-space-Definitionen für Thread-spezifische Operationen.
+*                                                                            
+*****************************************************************************/
+
 #ifndef THREADS_H
 #define THREADS_H
 
@@ -41,6 +53,7 @@ typedef enum {
 * @param thread 	Funktionszeiger auf den Thread
 * @param priority Priorität des Threads
 * @returns 		  	Die Nummer des Threads oder THREAD_REGISTER_ERROR im Fehlerfall.
+*					(TODO: Alternativ ERRNO-ähnliches)
 */
 threadno_t os_register_thread(const thread_function_t* thread, thread_priority_t priority, const unsigned char *threadname);
 

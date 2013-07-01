@@ -1,7 +1,18 @@
 /*****************************************************************************
-*                                                                            *
-*      Implementierung des Echtzeitkernels                                   *
-*                                                                            *
+*                                                                            
+* Beispiel für einen minimalen Multithreading-Betrieb (MT-Betrieb) 
+* auf einem Prozessor der 8051-Familie.
+*                                                                            
+* Markus Mayer   (Matr-Nr. XXXXXX)			                                 
+* Patrick Kaiser (Matr-Nr. YYYYYY)			                                 
+*
+* Implementierung des Echtzeitkernels.
+* 
+* Beinhaltet konkrete Implementierung der user-space-Funktionen zum
+* Initialisieren und Starten des Kernels, sowie Implementierungen des
+* overflow-Interrupthandlers des Timers 0, der Methoden zum Einreihen der
+* Threads in die ready-Listen und sonstiger Hilfsfunktionen.
+*                                                                            
 *****************************************************************************/
 
 // NOTE: Verwendung von assert aus mehreren Registerbanken erzeugt WARNING L15
