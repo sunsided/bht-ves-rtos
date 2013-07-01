@@ -11,7 +11,7 @@
  DaveTm { 0,0,0,0,0,0,0,0 }
 
 Target (rtos), 0x0000 // Tools: 'MCS-51'
-GRPOPT 1,(user),0,0,0
+GRPOPT 1,(user),1,0,0
 GRPOPT 2,(rtos_header_userspace),1,0,0
 GRPOPT 3,(rtos_impl_kernelspace),1,0,0
 
@@ -22,7 +22,7 @@ OPTFFF 2,4,5,0,0,0,0,0,<.\rtos\rtos.h><rtos.h>
 OPTFFF 2,5,5,0,0,0,0,0,<.\rtos\rtos_semaphores.h><rtos_semaphores.h> 
 OPTFFF 2,6,5,0,0,0,0,0,<.\rtos\rtos_threads.h><rtos_threads.h> 
 OPTFFF 2,7,5,0,0,0,0,0,<.\rtos\rtos_time.h><rtos_time.h> 
-OPTFFF 3,8,1,0,0,0,0,0,<.\rtos_impl\rtos.c><rtos.c> 
+OPTFFF 3,8,1,503316480,0,0,0,0,<.\rtos_impl\rtos.c><rtos.c> 
 OPTFFF 3,9,1,0,0,0,0,0,<.\rtos_impl\semaphores.c><semaphores.c> 
 OPTFFF 3,10,5,0,0,0,0,0,<.\rtos_impl\semaphores.h><semaphores.h> 
 OPTFFF 3,11,5,0,0,0,0,0,<.\rtos_impl\system.h><system.h> 
@@ -54,7 +54,7 @@ TARGOPT 1, (rtos)
   OPTBL 1,(User's Manual)<DATASHTS\INFINEON\C515C_UM.PDF>
   OPTDL (S8051.DLL)()(D500.DLL)(-p515C)(S8051.DLL)()(T500.DLL)(-p515C)
   OPTDBG 48125,-1,()()()()()()()()()() ()()()()
-  OPTDF 0x40000002
+  OPTDF 0x2
   OPTLE <>
   OPTLC <>
 EndOpt

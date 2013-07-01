@@ -1,3 +1,16 @@
+/*****************************************************************************
+*                                                                            
+* Beispiel für einen minimalen Multithreading-Betrieb (MT-Betrieb) 
+* auf einem Prozessor der 8051-Familie.
+*                                                                            
+* Markus Mayer   (Matr-Nr. XXXXXX)			                                 
+* Patrick Kaiser (Matr-Nr. YYYYYY)			                                 
+*
+* Implementierung von user- und kernel space-Funktionen für die
+* Registrierung und Verarbeitung von Semaphoren.
+*                                                                            
+*****************************************************************************/
+
 #include <assert.h>
 #include "system.h"
 #include "timer.h"

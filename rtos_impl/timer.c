@@ -1,3 +1,19 @@
+/*****************************************************************************
+*                                                                            
+* Beispiel für einen minimalen Multithreading-Betrieb (MT-Betrieb) 
+* auf einem Prozessor der 8051-Familie.
+*                                                                            
+* Markus Mayer   (Matr-Nr. XXXXXX)			                                 
+* Patrick Kaiser (Matr-Nr. YYYYYY)			                                 
+*
+* Implementierung von user- und kernel space-Funktionen für die
+* Ausführung von Timer-spezifischen Operationen.
+* Diese Methoden werden u.a. für die atomare Ausführung von Code im User
+* Space, sowie die Initialisierung und Reinitialisierung des Timers im
+* Kernel benötigt.
+*                                                                            
+*****************************************************************************/
+
 #include <reg51.h>
 #include "../rtos/datatypes.h"
 #include "../rtos/rtos.h"
