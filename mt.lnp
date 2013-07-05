@@ -1,5 +1,5 @@
 "STARTUP.obj",
-"MT.obj",
+"main.obj",
 "rtos.obj",
 "v24.obj",
 "timer.obj",
