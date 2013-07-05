@@ -96,7 +96,6 @@ sem_error_t os_semaphore_post(const semaphore_t* semaphore)
 {
 	static system_call_t								*sc;
 	static syscall_modify_semaphore_t	*calldata;
-	static system_call_result_t				*sr;
 	static sem_id_t										id;
 	
 	if (0 == semaphore)
@@ -163,7 +162,6 @@ sem_error_t os_semaphore_wait(const semaphore_t* semaphore)
 {
 	static system_call_t							*sc;
 	static syscall_modify_semaphore_t	*calldata;
-	static system_call_result_t				*sr;
 	static sem_id_t										id;
 	
 	if (0x0 == semaphore)
