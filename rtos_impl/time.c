@@ -15,7 +15,7 @@
 #include "syscall/syscall_sleep.h"
 #include "systemcall.h"
 #include "timer.h"
-#include "../rtos/time.h"
+#include "../rtos/rtos_time.h"
 
 extern systime_t system_time;
 
