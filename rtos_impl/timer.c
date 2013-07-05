@@ -14,7 +14,7 @@
 *                                                                            
 *****************************************************************************/
 
-#include <reg51.h>
+#include <reg515c.h>
 #include "../rtos/datatypes.h"
 #include "../rtos/rtos.h"
 #include "timer.h"
