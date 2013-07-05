@@ -1,3 +1,16 @@
+/*****************************************************************************
+*                                                                            
+* Beispiel für einen minimalen Multithreading-Betrieb (MT-Betrieb) 
+* auf einem Prozessor der 8051-Familie.
+*                                                                            
+* Markus Mayer   (Matr-Nr. XXXXXX)			                                 
+* Patrick Kaiser (Matr-Nr. YYYYYY)			                                 
+*
+* Implementierung von user- und kernel space-Funktionen für die
+* Registrierung und Verarbeitung von Semaphoren.
+*                                                                            
+*****************************************************************************/
+
 #include <assert.h>
 #include "system.h"
 #include "timer.h"
@@ -83,7 +96,6 @@ sem_error_t os_semaphore_post(const semaphore_t* semaphore)
 {
 	static system_call_t								*sc;
 	static syscall_modify_semaphore_t	*calldata;
-	static system_call_result_t				*sr;
 	static sem_id_t										id;
 	
 	if (0 == semaphore)
@@ -150,7 +162,6 @@ sem_error_t os_semaphore_wait(const semaphore_t* semaphore)
 {
 	static system_call_t							*sc;
 	static syscall_modify_semaphore_t	*calldata;
-	static system_call_result_t				*sr;
 	static sem_id_t										id;
 	
 	if (0x0 == semaphore)

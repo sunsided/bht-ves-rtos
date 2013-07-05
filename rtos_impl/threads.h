@@ -1,7 +1,20 @@
+/*****************************************************************************
+*                                                                            
+* Beispiel für einen minimalen Multithreading-Betrieb (MT-Betrieb) 
+* auf einem Prozessor der 8051-Familie.
+*                                                                            
+* Markus Mayer   (Matr-Nr. XXXXXX)			                                 
+* Patrick Kaiser (Matr-Nr. YYYYYY)			                                 
+*
+* Diese Datei enthält die Definitionen für die Thread-Verarbeitung im
+* Kernel space.
+*                                                                            
+*****************************************************************************/
+
 #ifndef IMPL__THREADS_H
 #define IMPL__THREADS_H
 
-#include "../rtos/threads.h"
+#include "../rtos/rtos_threads.h"
 #include "systemcall.h"
 
 #define FIRST       (-1)

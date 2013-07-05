@@ -1,26 +1,15 @@
 /*****************************************************************************
-*                                                                            *
-*      Beispiel für einen minimalen Multithreading-Betrieb (MT-Betrieb)      *
-*                      auf einem Prozessor der 8051-Familie                  *
-*                                                                            *
-*  to do: siehe Aufgabenblatt zur 1. Aufgabe                                 *
-*                                                                            *
-*****************************************************************************/
- 
-/*****************************************************************************
-*                                                                            *
-*                              A C H T U N G                                 *
-*                                                                            *
-*    - Unbedingt in µVision unter "Options > BL51 > Size/Location"           *
-*      RamSize auf 256 setzen!                                               *
-*                                                                            *
-*    - "Lokale" Variablen in einem Thread oder einer von ihm aufgerufenen    *
-*      Funktion als static definieren!                                       *
-*                                                                            *
-*    - Verwenden Sie für Funktionen, die aus der Int-Funktion, bzw. einer    *
-*      Thread-Funktion aufgerufen werden, mit "using n" immer die richtige   *
-*      Registerbank                                                          *
-*                                                                            *
+*                                                                            
+* Beispiel für einen minimalen Multithreading-Betrieb (MT-Betrieb) 
+* auf einem Prozessor der 8051-Familie.
+*                                                                            
+* Markus Mayer   (Matr-Nr. XXXXXX)			                                 
+* Patrick Kaiser (Matr-Nr. YYYYYY)			                                 
+*
+* Diese Datei enthält die Implementierung des Programmcodes gemäß der
+* Aufgabenstellung. Es werden Threads und Semaphore definiert und registriert,
+* der Betriebssystemkernel initialisiert und die Verarbeitung gestartet.
+*                                                                            
 *****************************************************************************/
 
 #include <stdio.h>
@@ -28,9 +17,19 @@
 #include <reg515c.h>
 #include "rtos/rtos.h"
 
+/**
+* Aktiviert zwei zusätzliche Threads zur Laufzeitausgabe.
+*/
 static bool zeitausgabe_aktiviert = false;
 
+/**
+* Größe des Ringpuffers, der Erzeuger- und Verbraucherthread verbindet.
+*/
 #define BUFFER_SIZE 42U
+
+/**
+* Der Ringpuffer für Erzeuger- und Verbraucher-Thread
+*/
 static volatile uint32_t shared_mem[BUFFER_SIZE];
 
 /**
@@ -39,12 +38,21 @@ static volatile uint32_t shared_mem[BUFFER_SIZE];
 static semaphore_t timer_semaphore;
 
 /**
-* Test-Semaphore
+* Semaphor, der angibt, ob Werte im Ringpuffer zur Verfügung stehen.
+* Wird vom Erzeugerthread gesteuert und vom Verbraucherthread gelesen.
 */
 static semaphore_t wert_da;
+
+/**
+* Semaphor, der angibt, ob Platz im Ringpuffer zur Verfügung steht.
+* Wird vom Erzeugerthread gelesen und vom Verbraucherthread gesteuert.
+*/
 static semaphore_t platz_da;
 
-// Alle Threads laufen in Registerbank 0
+/**
+* Exemplarischer Thread zur Zeitsynchronisation alle 1000ms.
+* siehe auch: print_system_time()
+*/
 void tick_system_time(void)
 {
 	while(1) {
@@ -53,6 +61,10 @@ void tick_system_time(void)
 	}
 }
 
+/**
+* Exemplarischer Thread zur Zeitausgabe alle 1000ms.
+* siehe auch: tick_system_time()
+*/
 void print_system_time(void)
 {
 	static systime_t time;
@@ -65,6 +77,11 @@ void print_system_time(void)
 	}
 }
 
+/**
+* Erzeuger-Thread, welcher kontinierlich steigende Werte in einen  
+* Ringpuffer schreibt.
+* Alle 10 Werte soll Pin P5.0 für 20ms auf HIGH gesetzt werden.
+*/
 void erzeuger(void)
 {
 	static uint32_t wert = 0;
@@ -87,6 +104,11 @@ void erzeuger(void)
 	}
 }
 
+/**
+* Verbraucher-Thread, welcher aus dem Ringpuffer liest.
+* Liegen nicht-kontinierlich steigende Werte vor, wird Pin P5.1 
+* dauerhaft auf HIGH-Pegel gesetzt.
+*/
 void verbraucher(void)
 {
 	static uint8_t read_idx = 0;
@@ -170,10 +192,15 @@ void initialize_semaphores() {
 	printf("Semaphor \"platz_da\" initialisiert als ID %u.\r\n", (uint16_t)platz_da.semaphore_id);
 }
 
+/**
+* Main Entry Point
+*/
 void main(void) {
 
+	// pulldown der Registerbänke
 	P5 = 0x0;
 
+	// Betriebssystem und user-Logik initialisieren
 	os_init();
 	register_threads();
 	initialize_semaphores();

@@ -1,6 +1,21 @@
+/*****************************************************************************
+*                                                                            
+* Beispiel für einen minimalen Multithreading-Betrieb (MT-Betrieb) 
+* auf einem Prozessor der 8051-Familie.
+*                                                                            
+* Markus Mayer   (Matr-Nr. XXXXXX)			                                 
+* Patrick Kaiser (Matr-Nr. YYYYYY)			                                 
+*
+* Beinhaltet UART-spezifische Implementierungen.
+*                                                                            
+*****************************************************************************/
+
 #include <reg51.h>
 #include "v24.h"
 
+/**
+* Initialisiert die UART.
+*/
 void os_intialize_uart(void)
 {
 	SCON = 0x52;      		// Serial channel control register

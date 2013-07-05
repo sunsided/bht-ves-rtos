@@ -6,40 +6,27 @@
 * Markus Mayer   (Matr-Nr. XXXXXX)			                                 
 * Patrick Kaiser (Matr-Nr. YYYYYY)			                                 
 *
-* Beinhaltet Datentypdefinitionen in Ermangelung an <stdint.h>
+* Beinhaltet user-space-Defitionen für Zeit-spezifische Operationen.
 *                                                                            
 *****************************************************************************/
 
-#ifndef DATATYPES_H
-#define DATATYPES_H
+#ifndef IMPL__SLEEP_H
+#define IMPL__SLEEP_H
 
-typedef   signed char 		   int8_t;		// 8-bit    signed
-typedef unsigned char 		  uint8_t;		// 8-bit  unsigned
-typedef  signed short int 	 int16_t;		// 16-bit   signed
-typedef unsigned short int 	uint16_t;		// 16-bit unsigned
-typedef unsigned long int 	uint32_t;   // 32-bit unsigned
-
-/*
-* Typ für eine Schlafdauer.
-*/
-typedef int16_t sleep_t;
+#include "../rtos/datatypes.h"
 
 /**
-* Typ für die eine Zeitangabe.
+* Pausert den Thread für die angegebene Zeit.
+*
+* @param ms Die Zeit in Millisekunden.
 */
-typedef uint32_t systime_t;
+void os_sleep(const sleep_t ms);
 
 /**
-* Fehlercode
+* Liefert die Systemzeit in Millisekunden seit Start.
+*
+* @returns Die Laufzeit.
 */
-typedef int8_t error_t;
+systime_t os_time();
 
-/**
-* Boolean
-*/
-typedef enum {
-	true = 1,
-	false = 0
-} bool;
-
-#endif /* DATATYPES_H */
+#endif /* IMPL__SLEEP_H */

@@ -1,8 +1,21 @@
+/*****************************************************************************
+*                                                                            
+* Beispiel für einen minimalen Multithreading-Betrieb (MT-Betrieb) 
+* auf einem Prozessor der 8051-Familie.
+*                                                                            
+* Markus Mayer   (Matr-Nr. XXXXXX)			                                 
+* Patrick Kaiser (Matr-Nr. YYYYYY)			                                 
+*
+* Implementierung von user- und kernel space-Funktionen von Zeit-spezifischen
+* Operationen (os_sleep, os_time).
+*                                                                            
+*****************************************************************************/
+
 #include <assert.h>
 #include "syscall/syscall_sleep.h"
 #include "systemcall.h"
 #include "timer.h"
-#include "../rtos/time.h"
+#include "../rtos/rtos_time.h"
 
 extern systime_t system_time;
 
@@ -38,7 +51,7 @@ systime_t os_time()
 {
 	static systime_t time; 
 	
-	os_suppress_system_timer_int();
+	os_suppress_system_timer_int(); // systime_t ist 32bit
 	time = system_time;
 	os_allow_system_timer_int();
 	return time;

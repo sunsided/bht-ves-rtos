@@ -356,9 +356,9 @@
               <FilePath>.\STARTUP.A51</FilePath>
             </File>
             <File>
-              <FileName>MT.c</FileName>
+              <FileName>main.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\MT.c</FilePath>
+              <FilePath>.\main.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -446,19 +446,19 @@
               <FilePath>.\rtos\rtos.h</FilePath>
             </File>
             <File>
-              <FileName>threads.h</FileName>
+              <FileName>rtos_semaphores.h</FileName>
               <FileType>5</FileType>
-              <FilePath>.\rtos\threads.h</FilePath>
+              <FilePath>.\rtos\rtos_semaphores.h</FilePath>
             </File>
             <File>
-              <FileName>time.h</FileName>
+              <FileName>rtos_threads.h</FileName>
               <FileType>5</FileType>
-              <FilePath>.\rtos\time.h</FilePath>
+              <FilePath>.\rtos\rtos_threads.h</FilePath>
             </File>
             <File>
-              <FileName>semaphores.h</FileName>
+              <FileName>rtos_time.h</FileName>
               <FileType>5</FileType>
-              <FilePath>.\rtos\semaphores.h</FilePath>
+              <FilePath>.\rtos\rtos_time.h</FilePath>
             </File>
           </Files>
         </Group>

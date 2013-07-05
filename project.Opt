@@ -1,0 +1,61 @@
+### uVision2 Project, (C) Keil Software
+### Do not modify !
+
+ cExt (*.c)
+ aExt (*.s*; *.src; *.a*)
+ oExt (*.obj)
+ lExt (*.lib)
+ tExt (*.txt; *.h; *.inc)
+ pExt (*.plm)
+ CppX (*.cpp)
+ DaveTm { 0,0,0,0,0,0,0,0 }
+
+Target (rtos), 0x0000 // Tools: 'MCS-51'
+GRPOPT 1,(user),1,0,0
+GRPOPT 2,(rtos_header_userspace),1,0,0
+GRPOPT 3,(rtos_impl_kernelspace),1,0,0
+
+OPTFFF 1,1,1,0,0,0,0,0,<.\main.c><main.c> 
+OPTFFF 1,2,2,0,0,0,0,0,<.\STARTUP.A51><STARTUP.A51> 
+OPTFFF 2,3,5,0,0,0,0,0,<.\rtos\datatypes.h><datatypes.h> 
+OPTFFF 2,4,5,0,0,0,0,0,<.\rtos\rtos.h><rtos.h> 
+OPTFFF 2,5,5,0,0,0,0,0,<.\rtos\rtos_semaphores.h><rtos_semaphores.h> 
+OPTFFF 2,6,5,0,0,0,0,0,<.\rtos\rtos_threads.h><rtos_threads.h> 
+OPTFFF 2,7,5,0,0,0,0,0,<.\rtos\rtos_time.h><rtos_time.h> 
+OPTFFF 3,8,1,503316480,0,0,0,0,<.\rtos_impl\rtos.c><rtos.c> 
+OPTFFF 3,9,1,0,0,0,0,0,<.\rtos_impl\semaphores.c><semaphores.c> 
+OPTFFF 3,10,5,0,0,0,0,0,<.\rtos_impl\semaphores.h><semaphores.h> 
+OPTFFF 3,11,5,0,0,0,0,0,<.\rtos_impl\system.h><system.h> 
+OPTFFF 3,12,1,0,0,0,0,0,<.\rtos_impl\systemcall.c><systemcall.c> 
+OPTFFF 3,13,5,0,0,0,0,0,<.\rtos_impl\systemcall.h><systemcall.h> 
+OPTFFF 3,14,1,0,0,0,0,0,<.\rtos_impl\threads.c><threads.c> 
+OPTFFF 3,15,5,0,0,0,0,0,<.\rtos_impl\threads.h><threads.h> 
+OPTFFF 3,16,1,0,0,0,0,0,<.\rtos_impl\time.c><time.c> 
+OPTFFF 3,17,1,0,0,0,0,0,<.\rtos_impl\timer.c><timer.c> 
+OPTFFF 3,18,5,0,0,0,0,0,<.\rtos_impl\timer.h><timer.h> 
+OPTFFF 3,19,1,0,0,0,0,0,<.\rtos_impl\v24.c><v24.c> 
+OPTFFF 3,20,5,0,0,0,0,0,<.\rtos_impl\v24.h><v24.h> 
+OPTFFF 3,21,5,0,0,0,0,0,<.\rtos_impl\syscall\syscall_register_thread.h><syscall_register_thread.h> 
+OPTFFF 3,22,5,0,0,0,0,0,<.\rtos_impl\syscall\syscall_semaphore.h><syscall_semaphore.h> 
+OPTFFF 3,23,5,0,0,0,0,0,<.\rtos_impl\syscall\syscall_sleep.h><syscall_sleep.h> 
+
+
+TARGOPT 1, (rtos)
+ CLK51=10000000
+  OPTTT 0,1,1,0
+  OPTHX 0,65535,0,0,0
+  OPTLX 120,65,8,<.\>
+  OPTOX 16
+  OPTLT 1,1,1,0,1,1,0,1,0,0,0,0
+  OPTXL 1,1,1,1,1,1,1,0,0
+  OPTFL 1,0,1
+  OPTAX 255
+  OPTBL 0,(C500 Instruction Set Manual)<DATASHTS\INFINEON\C500_AISM.PDF>
+  OPTBL 1,(User's Manual)<DATASHTS\INFINEON\C515C_UM.PDF>
+  OPTDL (S8051.DLL)()(D500.DLL)(-p515C)(S8051.DLL)()(T500.DLL)(-p515C)
+  OPTDBG 48125,-1,()()()()()()()()()() ()()()()
+  OPTDF 0x2
+  OPTLE <>
+  OPTLC <>
+EndOpt
+
