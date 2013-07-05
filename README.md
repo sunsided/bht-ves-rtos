@@ -1,7 +1,7 @@
 # Erstellung eines einfachen Multi-Threading-Betriebssystems mit Echtzeit-Scheduling auf 8051-Architektur
 
 Beuth-Hochschule Berlin, Technische Informatik / Embedded Systems Master
-Vertiefung Echtzeitsysteme (<a href="http://prof.beuth-hochschule.de/buchholz/">Prof. Dr.-Ing. Bernhard Buchholz</a>)
+Vertiefung Echtzeitsysteme ([Prof. Dr.-Ing. Bernhard Buchholz](http://prof.beuth-hochschule.de/buchholz/))
 
 ## Umgesetztes System
 
@@ -11,6 +11,10 @@ Vertiefung Echtzeitsysteme (<a href="http://prof.beuth-hochschule.de/buchholz/">
 
 + Keil µVision Simulator
 + Infineon C515C (Speichermodell Large)
+
+## Hinweis
+
+Beim Bauen des Projektes erscheint Linkerwarnung [L15](http://www.keil.com/support/docs/805.htm) "`MULTIPLE CALL TO SEGMENT`" bezüglich `printf(...)`. Diese Warnung hat ihre Ursache in der Verwendung des `ASSERT`-Makros in verschiedenen Registerbänken (user- und kernel space). Da das `ASSERT`-Makro nur in Fehlerfällen Meldungen ausgibt - ein Fehlverhalten also ohnehin bereits aufgereten ist - kann diese Warnung prinzipiell ignoriert werden.
 
 ## Implementierung
 
@@ -108,3 +112,15 @@ Dieses Verhalten wird von den Funktionen  `os_semaphore_post(...)` und `os_semap
 Der TCB jedes Threads besitzt einen lokalen Speicher vom Typ `thread_data_t`, welcher ein Feld `system_call_result_t syscall_result` beinhaltet. Dieses beinhaltet die Art und das Ergebnis des zuletzt ausgeführten system calls. Wie auch in `system_call_t` sind hier Spezialisierungen der system calls über ein union-Feld realisiert.
 
 Mittels der Funktion `os_get_system_call_result()` kann ein Zeiger auf das system call-Ergebnis des aktuell laufenden Threads bezogen werden. Die Funktion `os_clear_system_call_result()` setzt das Ergebnis zurück auf einen leeren Zustand (`NO_SYSTEM_CALL`).
+
+### Implementierung der Kernel-Logik
+
+Die Kernel-Logik ist grundsätzlich im Modul `rtos_impl/rtos.c` implementiert, wobei jedoch Funktionen aus anderen Modulen verwendet werden (etwa `rtos_impl/threads.c`, ...).
+
+Die Verarbeitung des timeslice-/user interrupts findet in `timer0() interrupt 1` statt. Hier wird entschieden, ob es sich bei dem Aufruf um einen regulären Timer-Interrupt (timeslice) oder einen software interrupt handelt (`kernel_is_system_call()`), wobei das Verhalten entsprechend unterschieden wird.
+
+Die Funktionen `kernel_exec_syscall_foo(syscall)` realisieren die Verarbeitung des entsprechenden system calls (hier: `foo`). Abhängig von der Art des system calls wird entschieden, ob ein abschließender Threadwechsel nötig ist; Die Ausnahme stellen hier die Initialisierungsfunktionen (register thread, etc.) dar, welche keinen Threadwechsel implizieren. 
+
+Mittels `kernel_update_sleep_list()` wird die sleep list der Threads aktualisiert (hier werden ggf. Threads zurück in die ready list verschoben); Der Aufruf von `kernel_schedule_next_thread()` liefert die ID des nun zu aktivierenden Threads. Unterscheidet sich diese ID tatsächlich von der ID des aktuell laufenden Threads, wird ein Threadwechsel durchgeführt.
+
+Die Funktionen `kernel_add_to_sleep_list(...)`, `kernel_add_to_ready_list(...)` und `kernel_remove_from_ready_list(...)` implementieren die Verwaltung der entsprechenden Listen; Die Verwaltung der Semaphor-spezifischen Wartelisten mittels `kernel_add_to_semaphore_list(...)` und `kernel_remove_from_semaphore_list(...)` ist in `rtos_impl/semaphore.c` implementiert. 
